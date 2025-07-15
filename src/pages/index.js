@@ -16,7 +16,6 @@ const geistMono = Geist_Mono({
 
 export default function Home() {
   const [inputValue, setInputValue] = useState(""); // for the input field
-  const [searchTerm, setSearchTerm] = useState(""); // for the actual search
 
   const [results, setResults] = useState([]);
 
@@ -27,8 +26,8 @@ export default function Home() {
   // Filter results based on search term
   const filteredResults = results.filter(
     (song) =>
-      song.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      song.artist.toLowerCase().includes(searchTerm.toLowerCase())
+      song.title.toLowerCase().includes(inputValue.toLowerCase()) ||
+      song.artist.toLowerCase().includes(inputValue.toLowerCase())
   );
 
   const addToPlaylist = (song) => {
@@ -41,26 +40,15 @@ export default function Home() {
     setPlaylist(playlist.filter((s) => s.id !== songId));
   };
 
-
-
-
-
-
   const handleSearch = async (e) => {
     e.preventDefault();
-    // Set the search term to the input value
-
-    setSearchTerm(inputValue);
 
     try {
       const res = await axios.get(`/api/spotify`, {
         params: {
-          query: searchTerm || inputValue // Use searchTerm  or inputValue
-
+          query: inputValue,
         },
       });
-
-      console.log("Search results:", res);
 
       setResults(
         res.data.map((track) => ({
@@ -69,21 +57,10 @@ export default function Home() {
           artist: track.artists.map((artist) => artist.name).join(", "),
         }))
       );
-
-      setSearchTerm(""); // Clear the search term
-
     } catch (error) {
       console.error("Error fetching data:", error);
     }
   };
-
-
-
-
-
-
-
-
 
   const handleSavePlaylist = () => {
     if (!playlistName || playlist.length === 0) return;
@@ -97,15 +74,16 @@ export default function Home() {
 
   return (
     <div
-      className={`${geistSans.className} ${geistMono.className} grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]`}
+      className={`${geistSans.className} ${geistMono.className} grid grid-rows-[60px_1fr_20px] pb-8 items-center justify-items-center min-h-screen gap-16 font-[family-name:var(--font-geist-sans)]`}
     >
-      <header className="w-full bg-black text-white py-6 px-4 text-3xl font-bold text-center">
-        Ja
-        <span className="text-green-600">m</span>
-        <span className="text-green-600">m</span>
-        ing
-      </header>
-      {/* Main Content */}
+
+        <header className="w-full h-16 bg-black text-white py-16 px-4 text-3xl font-bold text-center">
+          Ja
+          <span className="text-green-600">m</span>
+          <span className="text-green-600">m</span>
+          ing
+        </header>
+
       <main className="flex flex-col md:flex-row gap-8 flex-1 p-6 md:p-12 max-w-6xl mx-auto w-full">
         {/* Search & Results */}
         <section className="flex-1 flex flex-col gap-6">
@@ -117,6 +95,7 @@ export default function Home() {
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
             />
+
             <button
               type="submit"
               className="px-5 py-3 bg-black text-white rounded hover:bg-gray-800 text-lg font-semibold"
@@ -124,7 +103,7 @@ export default function Home() {
               Search
             </button>
           </form>
-          <div className="bg-white rounded shadow p-4 flex-1">
+          <div className="bg-white rounded shadow-lg border border-gray-200 p-4 flex-1">
             <h2 className="text-xl font-semibold mb-4">Results</h2>
             <ul className="space-y-3">
               {filteredResults.length === 0 && (
@@ -154,7 +133,7 @@ export default function Home() {
 
         {/* Playlist */}
         <section className="w-full md:w-96 flex flex-col gap-6">
-          <div className="bg-white rounded shadow p-4 flex flex-col flex-1">
+          <div className="bg-white rounded shadow-lg border border-gray-200 p-4 flex flex-col flex-1">
             <input
               type="text"
               placeholder="Playlist name"
@@ -195,29 +174,38 @@ export default function Home() {
           </div>
           {/* Saved Playlists */}
           {savedPlaylists.length > 0 && (
-            <div className="bg-white rounded shadow p-4 mt-4">
+            <div className="bg-white rounded shadow-lg border border-gray-200 p-4 mt-4">
               <h2 className="text-xl font-semibold mb-4">Saved Playlists</h2>
               <ul className="space-y-6">
-                {savedPlaylists.map((pl, idx) => (
-                  <li key={idx}>
-                    <div className="font-bold mb-2">{pl.name}</div>
-                    <ul className="ml-4 list-disc">
-                      {pl.songs.map((song) => (
-                        <li key={song.id}>
-                          <span className="font-medium">{song.title}</span>
-                          <span className="text-gray-500 ml-2">
-                            by {song.artist}
-                          </span>
-                        </li>
-                      ))}
-                    </ul>
-                  </li>
-                ))}
+                {savedPlaylists.map((pl, idx) => {
+                  // Get unique artists in the playlist
+                  const uniqueArtists = new Set();
+                  pl.songs.forEach(song => {
+                    song.artist.split(",").forEach(a => uniqueArtists.add(a.trim()));
+                  });
+                  return (
+                    <li key={idx}>
+                      <div className="font-bold mb-2">{pl.name}</div>
+                      <div className="ml-4 text-gray-600 text-sm">
+                        {pl.songs.length} {pl.songs.length === 1 ? "song" : "songs"} &middot;{" "}
+                        {uniqueArtists.size} {uniqueArtists.size === 1 ? "artist" : "artists"}
+                      </div>
+                      {idx < savedPlaylists.length - 1 && (
+                        <hr className="my-4 border-t border-gray-200" />
+                      )}
+                    </li>
+                  );
+                })}
               </ul>
             </div>
           )}
         </section>
       </main>
+      <footer>
+        <div className="text-center text-gray-500 text-sm">
+          Made with Next.js and Spotify API
+        </div>
+      </footer>
     </div>
   );
 }
