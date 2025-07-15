@@ -41,17 +41,25 @@ export default function Home() {
     setPlaylist(playlist.filter((s) => s.id !== songId));
   };
 
+
+
+
+
+
   const handleSearch = async (e) => {
     e.preventDefault();
     // Set the search term to the input value
+
     setSearchTerm(inputValue);
+
     try {
       const res = await axios.get(`/api/spotify`, {
         params: {
-          query: searchTerm || inputValue, // Use searchTerm  or inputValue
-          limit: 5, // Limit results to 5 tracks
+          query: searchTerm || inputValue // Use searchTerm  or inputValue
+
         },
       });
+
       setResults(
         res.data.map((track) => ({
           id: track.id,
@@ -59,11 +67,21 @@ export default function Home() {
           artist: track.artists.map((artist) => artist.name).join(", "),
         }))
       );
+
       setSearchTerm(""); // Clear the search term
+
     } catch (error) {
       console.error("Error fetching data:", error);
     }
   };
+
+
+
+
+
+
+
+
 
   const handleSavePlaylist = () => {
     if (!playlistName || playlist.length === 0) return;

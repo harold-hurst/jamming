@@ -6,9 +6,12 @@ const SPOTIFY_API_URL = 'https://api.spotify.com/v1';
 const SPOTIFY_TOKEN_URL = 'https://accounts.spotify.com/api/token';
 
 async function getAccessToken() {
-  const { SPOTIFY_CLIENT_ID, SPOTIFY_CLIENT_SECRET } = process.env;
+//   const { SPOTIFY_CLIENT_ID, SPOTIFY_CLIENT_SECRET } = process.env;
+  const clientId = process.env.SPOTIFY_CLIENT_ID;  // Server-side access
+  const clientSecret = process.env.SPOTIFY_CLIENT_SECRET;
 
-  const auth = Buffer.from(`${SPOTIFY_CLIENT_ID}:${SPOTIFY_CLIENT_SECRET}`).toString('base64');
+//   const auth = Buffer.from(`${SPOTIFY_CLIENT_ID}:${SPOTIFY_CLIENT_SECRET}`).toString('base64');
+  const auth = Buffer.from(`${clientId}:${clientSecret}`).toString('base64');
 
   const response = await axios.post(SPOTIFY_TOKEN_URL, 'grant_type=client_credentials', {
     headers: {
