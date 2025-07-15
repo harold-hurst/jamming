@@ -60,6 +60,8 @@ export default function Home() {
         },
       });
 
+      console.log("Search results:", res);
+
       setResults(
         res.data.map((track) => ({
           id: track.id,
@@ -97,11 +99,12 @@ export default function Home() {
     <div
       className={`${geistSans.className} ${geistMono.className} grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]`}
     >
-      {/* Header */}
       <header className="w-full bg-black text-white py-6 px-4 text-3xl font-bold text-center">
-        Jamming
+        Ja
+        <span className="text-green-600">m</span>
+        <span className="text-green-600">m</span>
+        ing
       </header>
-
       {/* Main Content */}
       <main className="flex flex-col md:flex-row gap-8 flex-1 p-6 md:p-12 max-w-6xl mx-auto w-full">
         {/* Search & Results */}
