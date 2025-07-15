@@ -1,5 +1,8 @@
 import Image from "next/image";
 import { Geist, Geist_Mono } from "next/font/google";
+import { useState } from "react";
+
+import axios from "axios";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -12,104 +15,188 @@ const geistMono = Geist_Mono({
 });
 
 export default function Home() {
+  const [inputValue, setInputValue] = useState(""); // for the input field
+  const [searchTerm, setSearchTerm] = useState(""); // for the actual search
+
+  const [results, setResults] = useState([]);
+
+  const [playlist, setPlaylist] = useState([]);
+  const [playlistName, setPlaylistName] = useState("");
+  const [savedPlaylists, setSavedPlaylists] = useState([]);
+
+  // Filter results based on search term
+  const filteredResults = results.filter(
+    (song) =>
+      song.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      song.artist.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const addToPlaylist = (song) => {
+    if (!playlist.find((s) => s.id === song.id)) {
+      setPlaylist([...playlist, song]);
+    }
+  };
+
+  const removeFromPlaylist = (songId) => {
+    setPlaylist(playlist.filter((s) => s.id !== songId));
+  };
+
+  const handleSearch = async (e) => {
+    e.preventDefault();
+    // Set the search term to the input value
+    setSearchTerm(inputValue);
+    try {
+      const res = await axios.get(`/api/spotify`, {
+        params: {
+          query: searchTerm || inputValue, // Use searchTerm  or inputValue
+          limit: 5, // Limit results to 5 tracks
+        },
+      });
+      setResults(
+        res.data.map((track) => ({
+          id: track.id,
+          title: track.name,
+          artist: track.artists.map((artist) => artist.name).join(", "),
+        }))
+      );
+      setSearchTerm(""); // Clear the search term
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    }
+  };
+
+  const handleSavePlaylist = () => {
+    if (!playlistName || playlist.length === 0) return;
+    setSavedPlaylists([
+      ...savedPlaylists,
+      { name: playlistName, songs: playlist },
+    ]);
+    setPlaylist([]);
+    setPlaylistName("");
+  };
+
   return (
     <div
       className={`${geistSans.className} ${geistMono.className} grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]`}
     >
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
-              src/pages/index.js
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
+      {/* Header */}
+      <header className="w-full bg-black text-white py-6 px-4 text-3xl font-bold text-center">
+        Jamming
+      </header>
+
+      {/* Main Content */}
+      <main className="flex flex-col md:flex-row gap-8 flex-1 p-6 md:p-12 max-w-6xl mx-auto w-full">
+        {/* Search & Results */}
+        <section className="flex-1 flex flex-col gap-6">
+          <form className="flex gap-2" onSubmit={handleSearch}>
+            <input
+              type="text"
+              placeholder="Search for a song..."
+              className="w-full px-4 py-3 rounded border border-gray-300 focus:outline-none focus:ring-2 focus:ring-black text-lg"
+              value={inputValue}
+              onChange={(e) => setInputValue(e.target.value)}
             />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
-        </div>
+            <button
+              type="submit"
+              className="px-5 py-3 bg-black text-white rounded hover:bg-gray-800 text-lg font-semibold"
+            >
+              Search
+            </button>
+          </form>
+          <div className="bg-white rounded shadow p-4 flex-1">
+            <h2 className="text-xl font-semibold mb-4">Results</h2>
+            <ul className="space-y-3">
+              {filteredResults.length === 0 && (
+                <li className="text-gray-400">No results found.</li>
+              )}
+              {filteredResults.map((song) => (
+                <li
+                  key={song.id}
+                  className="flex items-center justify-between border-b border-gray-100 pb-2"
+                >
+                  <div>
+                    <span className="font-medium">{song.title}</span>
+                    <span className="text-gray-500 ml-2">by {song.artist}</span>
+                  </div>
+                  <button
+                    className="ml-4 px-3 py-1 bg-black text-white rounded hover:bg-gray-800 text-sm"
+                    onClick={() => addToPlaylist(song)}
+                    disabled={playlist.find((s) => s.id === song.id)}
+                  >
+                    {playlist.find((s) => s.id === song.id) ? "Added" : "Add"}
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </section>
+
+        {/* Playlist */}
+        <section className="w-full md:w-96 flex flex-col gap-6">
+          <div className="bg-white rounded shadow p-4 flex flex-col flex-1">
+            <input
+              type="text"
+              placeholder="Playlist name"
+              className="w-full px-3 py-2 mb-4 rounded border border-gray-300 focus:outline-none focus:ring-2 focus:ring-black text-lg"
+              value={playlistName}
+              onChange={(e) => setPlaylistName(e.target.value)}
+            />
+            <h2 className="text-xl font-semibold mb-4">Playlist</h2>
+            <ul className="space-y-3 flex-1">
+              {playlist.length === 0 && (
+                <li className="text-gray-400">No songs added yet.</li>
+              )}
+              {playlist.map((song) => (
+                <li
+                  key={song.id}
+                  className="flex items-center justify-between border-b border-gray-100 pb-2"
+                >
+                  <div>
+                    <span className="font-medium">{song.title}</span>
+                    <span className="text-gray-500 ml-2">by {song.artist}</span>
+                  </div>
+                  <button
+                    className="ml-4 px-2 py-1 text-xs text-red-500 hover:underline"
+                    onClick={() => removeFromPlaylist(song.id)}
+                  >
+                    Remove
+                  </button>
+                </li>
+              ))}
+            </ul>
+            <button
+              className="mt-6 w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 rounded transition"
+              disabled={!playlistName || playlist.length === 0}
+              onClick={handleSavePlaylist}
+            >
+              Save Playlist
+            </button>
+          </div>
+          {/* Saved Playlists */}
+          {savedPlaylists.length > 0 && (
+            <div className="bg-white rounded shadow p-4 mt-4">
+              <h2 className="text-xl font-semibold mb-4">Saved Playlists</h2>
+              <ul className="space-y-6">
+                {savedPlaylists.map((pl, idx) => (
+                  <li key={idx}>
+                    <div className="font-bold mb-2">{pl.name}</div>
+                    <ul className="ml-4 list-disc">
+                      {pl.songs.map((song) => (
+                        <li key={song.id}>
+                          <span className="font-medium">{song.title}</span>
+                          <span className="text-gray-500 ml-2">
+                            by {song.artist}
+                          </span>
+                        </li>
+                      ))}
+                    </ul>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+        </section>
       </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
     </div>
   );
 }
