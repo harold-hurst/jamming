@@ -209,11 +209,9 @@ export default function Home() {
 "
           >
             {profile && profile.images && profile.images.length > 0 ? (
-              <Image
+              <img
                 src={profile.images[0].url}
                 alt="Profile"
-                width={96}
-                height={96}
                 className="rounded-full object-cover border-2 border-green-600 w-24 h-24"
               />
             ) : (
@@ -251,13 +249,10 @@ export default function Home() {
           >
             <span id="avatar" className="mb-4">
               {profile && profile.images && profile.images.length > 0 ? (
-                <Image
+                <img
                   src={profile.images[0].url}
                   alt="Profile"
-                  width={96}
-                  height={96}
                   className="rounded-full object-cover border-2 border-green-600 w-24 h-24"
-                  priority
                 />
               ) : (
                 <div className="w-24 h-24 rounded-full bg-gray-200 flex items-center justify-center text-gray-400">
