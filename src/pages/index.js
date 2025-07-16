@@ -16,121 +16,6 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-const clientId = "7f128ca60395447889873922956dd74a"; // Replace with your client ID
-
-// step 1: handle login
-const handleLogin = async () => {
-
-  // Check if code is in the URL
-  // Create a URLSearchParams object from the query string in the page's URL
-  const params = new URLSearchParams(window.location.search); // Get URL parameters
-  const code = params.get("code");
-
-  console.log(params);
-  console.log(code);
-
-  if (!code) {
-
-    // If no code is present, redirect to the Spotify authorization page
-    redirectToAuthCodeFlow(clientId);
-  } else {
-    alert("else block");
-    const accessToken = getAccessToken(clientId, code);
-    const profile = fetchProfile(accessToken);
-    populateUI(profile);
-  }
-};
-
-
-// step 2: redirect to auth code flow
-async function redirectToAuthCodeFlow(clientId) {
-  const verifier = generateCodeVerifier(128);
-  const challenge = await generateCodeChallenge(verifier);
-
-  localStorage.setItem("verifier", verifier);
-
-  const params = new URLSearchParams();
-  params.append("client_id", clientId);
-  params.append("response_type", "code");
-  params.append("redirect_uri", "https://jamming-peach.vercel.app/");
-  params.append("scope", "user-read-private user-read-email");
-  params.append("code_challenge_method", "S256");
-  params.append("code_challenge", challenge);
-
-  document.location = `https://accounts.spotify.com/authorize?${params.toString()}`;
-}
-
-function generateCodeVerifier(length) {
-  let text = "";
-  let possible =
-    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-
-  for (let i = 0; i < length; i++) {
-    text += possible.charAt(Math.floor(Math.random() * possible.length));
-  }
-  return text;
-}
-
-async function generateCodeChallenge(codeVerifier) {
-  const data = new TextEncoder().encode(codeVerifier);
-  const digest = await window.crypto.subtle.digest("SHA-256", data);
-  return btoa(String.fromCharCode.apply(null, [...new Uint8Array(digest)]))
-    .replace(/\+/g, "-")
-    .replace(/\//g, "_")
-    .replace(/=+$/, "");
-}
-
-
-// =====================================================================
-
-
-async function getAccessToken(clientId, code) {
-  const verifier = localStorage.getItem("verifier");
-
-  const params = new URLSearchParams();
-  params.append("client_id", clientId);
-  params.append("grant_type", "authorization_code");
-  params.append("code", code);
-  params.append("redirect_uri", "https://jamming-peach.vercel.app/");
-  params.append("code_verifier", verifier);
-
-  const result = await fetch("https://accounts.spotify.com/api/token", {
-    method: "POST",
-    headers: { "Content-Type": "application/x-www-form-urlencoded" },
-    body: params,
-  });
-
-  const { access_token } = await result.json();
-  return access_token;
-}
-
-async function fetchProfile(token) {
-  const result = await fetch("https://api.spotify.com/v1/me", {
-    method: "GET",
-    headers: { Authorization: `Bearer ${token}` },
-  });
-
-  return await result.json();
-}
-
-function populateUI(profile) {
-  document.getElementById("displayName").innerText = profile.display_name;
-  if (profile.images[0]) {
-    const profileImage = new Image(200, 200);
-    profileImage.src = profile.images[0].url;
-    document.getElementById("avatar").appendChild(profileImage);
-    document.getElementById("imgUrl").innerText = profile.images[0].url;
-  }
-  document.getElementById("id").innerText = profile.id;
-  document.getElementById("email").innerText = profile.email;
-  document.getElementById("uri").innerText = profile.uri;
-  document
-    .getElementById("uri")
-    .setAttribute("href", profile.external_urls.spotify);
-  document.getElementById("url").innerText = profile.href;
-  document.getElementById("url").setAttribute("href", profile.href);
-}
-
 export default function Home() {
   const [inputValue, setInputValue] = useState(""); // for the input field
 
@@ -141,7 +26,128 @@ export default function Home() {
   const [savedPlaylists, setSavedPlaylists] = useState([]);
 
   const [profile, setProfile] = useState(null);
+  const [code, setCode] = useState(null);
 
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search); // Get URL parameters
+    const codeFromUrl = params.get("code");
+    setCode(codeFromUrl);
+  }, []);
+
+  // Login functions
+  // =====================================================================
+
+  const clientId = "7f128ca60395447889873922956dd74a"; // Replace with your client ID
+
+  // step 1: handle login
+  const handleLogin = async () => {
+
+
+    if (!code) {
+      alert("if block");
+      // If no code is present, redirect to the Spotify authorization page
+      redirectToAuthCodeFlow(clientId);
+    } else {
+      alert("else block");
+      const accessToken = getAccessToken(clientId, code);
+      const profile = fetchProfile(accessToken);
+      setProfile(profile);
+      populateUI();
+    }
+  };
+
+  // step 2: redirect to auth code flow
+  // =====================================================================
+  async function redirectToAuthCodeFlow(clientId) {
+    const verifier = generateCodeVerifier(128);
+    const challenge = await generateCodeChallenge(verifier);
+
+    localStorage.setItem("verifier", verifier);
+
+    const params = new URLSearchParams();
+    params.append("client_id", clientId);
+    params.append("response_type", "code");
+    params.append("redirect_uri", "https://jamming-peach.vercel.app/");
+    params.append("scope", "user-read-private user-read-email");
+    params.append("code_challenge_method", "S256");
+    params.append("code_challenge", challenge);
+
+    document.location = `https://accounts.spotify.com/authorize?${params.toString()}`;
+  }
+
+  function generateCodeVerifier(length) {
+    let text = "";
+    let possible =
+      "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+
+    for (let i = 0; i < length; i++) {
+      text += possible.charAt(Math.floor(Math.random() * possible.length));
+    }
+    return text;
+  }
+
+  async function generateCodeChallenge(codeVerifier) {
+    const data = new TextEncoder().encode(codeVerifier);
+    const digest = await window.crypto.subtle.digest("SHA-256", data);
+    return btoa(String.fromCharCode.apply(null, [...new Uint8Array(digest)]))
+      .replace(/\+/g, "-")
+      .replace(/\//g, "_")
+      .replace(/=+$/, "");
+  }
+
+  // =====================================================================
+
+  async function getAccessToken(clientId, code) {
+    const verifier = localStorage.getItem("verifier");
+
+    const params = new URLSearchParams();
+    params.append("client_id", clientId);
+    params.append("grant_type", "authorization_code");
+    params.append("code", code);
+    params.append("redirect_uri", "https://jamming-peach.vercel.app/");
+    params.append("code_verifier", verifier);
+
+    const result = await fetch("https://accounts.spotify.com/api/token", {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: params,
+    });
+
+    const { access_token } = await result.json();
+    return access_token;
+  }
+
+  async function fetchProfile(token) {
+    const result = await fetch("https://api.spotify.com/v1/me", {
+      method: "GET",
+      headers: { Authorization: `Bearer ${token}` },
+    });
+
+    return await result.json();
+  }
+
+  function populateUI() {
+    document.getElementById("displayName").innerText = profile.display_name;
+    if (profile.images[0]) {
+      const profileImage = new Image(200, 200);
+      profileImage.src = profile.images[0].url;
+      document.getElementById("avatar").appendChild(profileImage);
+      document.getElementById("imgUrl").innerText = profile.images[0].url;
+    }
+    document.getElementById("id").innerText = profile.id;
+    document.getElementById("email").innerText = profile.email;
+    document.getElementById("uri").innerText = profile.uri;
+    document
+      .getElementById("uri")
+      .setAttribute("href", profile.external_urls.spotify);
+    document.getElementById("url").innerText = profile.href;
+    document.getElementById("url").setAttribute("href", profile.href);
+  }
+
+  // =====================================================================
+
+  // App functions
+  // =====================================================================
   // Filter results based on search term
   const filteredResults = results.filter(
     (song) =>
@@ -210,11 +216,13 @@ export default function Home() {
             className="bg-white rounded shadow-lg border border-gray-200 p-6 w-full flex flex-col items-center"
           >
             <h2 className="text-xl font-semibold mb-2">
-              Logged in as{" "}
-              <span id="displayName" className="text-green-600">
-                {profile ? profile.display_name : "Loading..."}
-              </span>
+              
+                {profile
+                  ? `Logged in as <span id="displayName" className="text-green-600">${profile.display_name}</span>`
+                  : "Not logged in"}
+     
             </h2>
+
             <span id="avatar" className="mb-4">
               {profile && profile.images && profile.images.length > 0 ? (
                 <img
