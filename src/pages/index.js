@@ -28,11 +28,24 @@ export default function Home() {
   const [profile, setProfile] = useState(null);
   const [code, setCode] = useState(null);
 
+  // try to get the code from the URL parameters
   useEffect(() => {
     const params = new URLSearchParams(window.location.search); // Get URL parameters
     const codeFromUrl = params.get("code");
-    setCode(codeFromUrl);
+    if (codeFromUrl) {
+      setCode(codeFromUrl);
+    }
   }, []);
+
+  // when code changes, we can use it to fetch the profile
+  useEffect(() => {
+    if (code) {
+      const accessToken = getAccessToken(clientId, code);
+      const profile = fetchProfile(accessToken);
+      setProfile(profile);
+      console.log("Profile fetched:", profile);
+    }
+  }, [code]);
 
   // Login functions
   // =====================================================================
@@ -41,19 +54,7 @@ export default function Home() {
 
   // step 1: handle login
   const handleLogin = async () => {
-
-
-    if (!code) {
-      alert("if block");
-      // If no code is present, redirect to the Spotify authorization page
-      redirectToAuthCodeFlow(clientId);
-    } else {
-      alert("else block");
-      const accessToken = getAccessToken(clientId, code);
-      const profile = fetchProfile(accessToken);
-      setProfile(profile);
-      populateUI();
-    }
+    redirectToAuthCodeFlow(clientId);
   };
 
   // step 2: redirect to auth code flow
@@ -126,29 +127,30 @@ export default function Home() {
     return await result.json();
   }
 
-  function populateUI() {
-    document.getElementById("displayName").innerText = profile.display_name;
-    if (profile.images[0]) {
-      const profileImage = new Image(200, 200);
-      profileImage.src = profile.images[0].url;
-      document.getElementById("avatar").appendChild(profileImage);
-      document.getElementById("imgUrl").innerText = profile.images[0].url;
-    }
-    document.getElementById("id").innerText = profile.id;
-    document.getElementById("email").innerText = profile.email;
-    document.getElementById("uri").innerText = profile.uri;
-    document
-      .getElementById("uri")
-      .setAttribute("href", profile.external_urls.spotify);
-    document.getElementById("url").innerText = profile.href;
-    document.getElementById("url").setAttribute("href", profile.href);
-  }
+  // function populateUI() {
+  //   document.getElementById("displayName").innerText = profile.display_name;
+  //   if (profile.images[0]) {
+  //     const profileImage = new Image(200, 200);
+  //     profileImage.src = profile.images[0].url;
+  //     document.getElementById("avatar").appendChild(profileImage);
+  //     document.getElementById("imgUrl").innerText = profile.images[0].url;
+  //   }
+  //   document.getElementById("id").innerText = profile.id;
+  //   document.getElementById("email").innerText = profile.email;
+  //   document.getElementById("uri").innerText = profile.uri;
+  //   document
+  //     .getElementById("uri")
+  //     .setAttribute("href", profile.external_urls.spotify);
+  //   document.getElementById("url").innerText = profile.href;
+  //   document.getElementById("url").setAttribute("href", profile.href);
+  // }
 
   // =====================================================================
 
   // App functions
   // =====================================================================
   // Filter results based on search term
+
   const filteredResults = results.filter(
     (song) =>
       song.title.toLowerCase().includes(inputValue.toLowerCase()) ||
@@ -215,14 +217,6 @@ export default function Home() {
             id="profile"
             className="bg-white rounded shadow-lg border border-gray-200 p-6 w-full flex flex-col items-center"
           >
-            <h2 className="text-xl font-semibold mb-2">
-              
-                {profile
-                  ? `Logged in as <span id="displayName" className="text-green-600">${profile.display_name}</span>`
-                  : "Not logged in"}
-     
-            </h2>
-
             <span id="avatar" className="mb-4">
               {profile && profile.images && profile.images.length > 0 ? (
                 <img
@@ -253,59 +247,76 @@ export default function Home() {
                 </div>
               )}
             </span>
-            <ul className="text-gray-700 text-base w-full mt-2 space-y-1">
-              <li>
-                User ID:{" "}
-                <span id="id" className="font-mono">
-                  {profile ? profile.id : "..."}
-                </span>
-              </li>
-              <li>
-                Email:{" "}
-                <span id="email" className="font-mono">
-                  {profile ? profile.email : "..."}
-                </span>
-              </li>
-              <li>
-                Spotify URI:{" "}
-                <a
-                  id="uri"
-                  href={profile ? profile.uri : "#"}
-                  className="text-cyan-600 hover:underline"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  {profile ? profile.uri : "..."}
-                </a>
-              </li>
-              <li>
-                Link:{" "}
-                <a
-                  id="url"
-                  href={profile ? profile.external_urls?.spotify : "#"}
-                  className="text-cyan-600 hover:underline"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  {profile ? profile.external_urls?.spotify : "..."}
-                </a>
-              </li>
-              <li>
-                Profile Image:{" "}
-                <span id="imgUrl" className="break-all">
-                  {profile && profile.images && profile.images.length > 0
-                    ? profile.images[0].url
-                    : "No image"}
-                </span>
-              </li>
-            </ul>
+            <h2 className="text-xl font-semibold mb-2">
+              {profile ? (
+                <>
+                  Logged in as{" "}
+                  <span id="displayName" className="text-green-600">
+                    {profile.display_name}
+                  </span>
+                </>
+              ) : (
+                "Not logged in"
+              )}
+            </h2>
 
-            <button
-              onClick={handleLogin}
-              className="px-5 py-3 bg-black text-white rounded hover:bg-gray-800 text-lg font-semibold"
-            >
-              Connect to Spotify
-            </button>
+            {!profile && (
+              <button
+                onClick={handleLogin}
+                className="mb-4 px-5 py-3 bg-black text-white rounded hover:bg-gray-800 text-lg font-semibold"
+              >
+                Connect to Spotify
+              </button>
+            )}
+
+            {profile && (
+              <ul className="text-gray-700 text-base w-full mt-2 space-y-1">
+                <li>
+                  User ID:{" "}
+                  <span id="id" className="font-mono">
+                    {profile ? profile.id : "..."}
+                  </span>
+                </li>
+                <li>
+                  Email:{" "}
+                  <span id="email" className="font-mono">
+                    {profile ? profile.email : "..."}
+                  </span>
+                </li>
+                <li>
+                  Spotify URI:{" "}
+                  <a
+                    id="uri"
+                    href={profile ? profile.uri : "#"}
+                    className="text-cyan-600 hover:underline"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    {profile ? profile.uri : "..."}
+                  </a>
+                </li>
+                <li>
+                  Link:{" "}
+                  <a
+                    id="url"
+                    href={profile ? profile.external_urls?.spotify : "#"}
+                    className="text-cyan-600 hover:underline"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    {profile ? profile.external_urls?.spotify : "..."}
+                  </a>
+                </li>
+                <li>
+                  Profile Image:{" "}
+                  <span id="imgUrl" className="break-all">
+                    {profile && profile.images && profile.images.length > 0
+                      ? profile.images[0].url
+                      : "No image"}
+                  </span>
+                </li>
+              </ul>
+            )}
           </section>
         </div>
 
