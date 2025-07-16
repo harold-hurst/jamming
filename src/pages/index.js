@@ -215,7 +215,6 @@ export default function Home() {
                 width={96}
                 height={96}
                 className="rounded-full object-cover border-2 border-green-600 w-24 h-24"
-                priority
               />
             ) : (
               <div className="w-24 h-24 rounded-full bg-gray-200 flex items-center justify-center text-gray-400">
