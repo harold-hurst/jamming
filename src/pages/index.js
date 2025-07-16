@@ -18,6 +18,31 @@ const geistMono = Geist_Mono({
 
 const clientId = "7f128ca60395447889873922956dd74a"; // Replace with your client ID
 
+// step 1: handle login
+const handleLogin = async () => {
+
+  // Check if code is in the URL
+  // Create a URLSearchParams object from the query string in the page's URL
+  const params = new URLSearchParams(window.location.search); // Get URL parameters
+  const code = params.get("code");
+
+  console.log(params);
+  console.log(code);
+
+  if (!code) {
+
+    // If no code is present, redirect to the Spotify authorization page
+    redirectToAuthCodeFlow(clientId);
+  } else {
+    alert("else block");
+    const accessToken = getAccessToken(clientId, code);
+    const profile = fetchProfile(accessToken);
+    populateUI(profile);
+  }
+};
+
+
+// step 2: redirect to auth code flow
 async function redirectToAuthCodeFlow(clientId) {
   const verifier = generateCodeVerifier(128);
   const challenge = await generateCodeChallenge(verifier);
@@ -55,6 +80,10 @@ async function generateCodeChallenge(codeVerifier) {
     .replace(/=+$/, "");
 }
 
+
+// =====================================================================
+
+
 async function getAccessToken(clientId, code) {
   const verifier = localStorage.getItem("verifier");
 
@@ -76,27 +105,30 @@ async function getAccessToken(clientId, code) {
 }
 
 async function fetchProfile(token) {
-    const result = await fetch("https://api.spotify.com/v1/me", {
-        method: "GET", headers: { Authorization: `Bearer ${token}` }
-    });
+  const result = await fetch("https://api.spotify.com/v1/me", {
+    method: "GET",
+    headers: { Authorization: `Bearer ${token}` },
+  });
 
-    return await result.json();
+  return await result.json();
 }
 
 function populateUI(profile) {
-    document.getElementById("displayName").innerText = profile.display_name;
-    if (profile.images[0]) {
-        const profileImage = new Image(200, 200);
-        profileImage.src = profile.images[0].url;
-        document.getElementById("avatar").appendChild(profileImage);
-        document.getElementById("imgUrl").innerText = profile.images[0].url;
-    }
-    document.getElementById("id").innerText = profile.id;
-    document.getElementById("email").innerText = profile.email;
-    document.getElementById("uri").innerText = profile.uri;
-    document.getElementById("uri").setAttribute("href", profile.external_urls.spotify);
-    document.getElementById("url").innerText = profile.href;
-    document.getElementById("url").setAttribute("href", profile.href);
+  document.getElementById("displayName").innerText = profile.display_name;
+  if (profile.images[0]) {
+    const profileImage = new Image(200, 200);
+    profileImage.src = profile.images[0].url;
+    document.getElementById("avatar").appendChild(profileImage);
+    document.getElementById("imgUrl").innerText = profile.images[0].url;
+  }
+  document.getElementById("id").innerText = profile.id;
+  document.getElementById("email").innerText = profile.email;
+  document.getElementById("uri").innerText = profile.uri;
+  document
+    .getElementById("uri")
+    .setAttribute("href", profile.external_urls.spotify);
+  document.getElementById("url").innerText = profile.href;
+  document.getElementById("url").setAttribute("href", profile.href);
 }
 
 export default function Home() {
@@ -109,23 +141,6 @@ export default function Home() {
   const [savedPlaylists, setSavedPlaylists] = useState([]);
 
   const [profile, setProfile] = useState(null);
-
-  const handleLogin = async () => {
-    // Create a URLSearchParams object from the query string in the page's URL
-    const params = new URLSearchParams(window.location.search); // Get URL parameters
-    const code = params.get("code");
-
-    console.log(params);
-    console.log(code);
-
-    if (!code) {
-      redirectToAuthCodeFlow(clientId);
-    } else {
-      const accessToken = getAccessToken(clientId, code);
-      const profile = fetchProfile(accessToken);
-      populateUI(profile);
-    }
-  }
 
   // Filter results based on search term
   const filteredResults = results.filter(
@@ -180,7 +195,6 @@ export default function Home() {
     <div
       className={`${geistSans.className} ${geistMono.className} grid grid-rows-[60px_1fr_20px] pb-8 items-center justify-items-center min-h-screen gap-16 font-[family-name:var(--font-geist-sans)]`}
     >
-
       <header className="w-full h-16 bg-black text-white py-16 px-4 text-3xl font-bold text-center">
         Ja
         <span className="text-green-600">m</span>
@@ -210,19 +224,39 @@ export default function Home() {
                 />
               ) : (
                 <div className="w-24 h-24 rounded-full bg-gray-200 flex items-center justify-center text-gray-400">
-                  <svg className="w-12 h-12" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M5.121 17.804A9 9 0 1112 21a8.963 8.963 0 01-6.879-3.196z" />
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                  <svg
+                    className="w-12 h-12"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth={2}
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M5.121 17.804A9 9 0 1112 21a8.963 8.963 0 01-6.879-3.196z"
+                    />
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+                    />
                   </svg>
                 </div>
               )}
             </span>
             <ul className="text-gray-700 text-base w-full mt-2 space-y-1">
               <li>
-                User ID: <span id="id" className="font-mono">{profile ? profile.id : "..."}</span>
+                User ID:{" "}
+                <span id="id" className="font-mono">
+                  {profile ? profile.id : "..."}
+                </span>
               </li>
               <li>
-                Email: <span id="email" className="font-mono">{profile ? profile.email : "..."}</span>
+                Email:{" "}
+                <span id="email" className="font-mono">
+                  {profile ? profile.email : "..."}
+                </span>
               </li>
               <li>
                 Spotify URI:{" "}
@@ -258,16 +292,12 @@ export default function Home() {
               </li>
             </ul>
 
-
-
-                          <button
-                onClick={handleLogin}
-                className="px-5 py-3 bg-black text-white rounded hover:bg-gray-800 text-lg font-semibold"
-              >
-                Connect to Spotify
-              </button>
-
-
+            <button
+              onClick={handleLogin}
+              className="px-5 py-3 bg-black text-white rounded hover:bg-gray-800 text-lg font-semibold"
+            >
+              Connect to Spotify
+            </button>
           </section>
         </div>
 
