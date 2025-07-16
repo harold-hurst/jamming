@@ -38,23 +38,22 @@ export default function Home() {
   }, []);
 
   // when code changes, we can use it to fetch the profile
-useEffect(() => {
-  if (!code) return;
+  useEffect(() => {
+    if (!code) return;
 
-  const fetchProfileData = async () => {
-    try {
-      const accessToken = await getAccessToken(clientId, code);
-      const profile = await fetchProfile(accessToken);
-      setProfile(profile);
-      console.log("Profile fetched:", profile);
-    } catch (error) {
-      console.error("Error fetching profile:", error);
-    }
-  };
+    const fetchProfileData = async () => {
+      try {
+        const accessToken = await getAccessToken(clientId, code);
+        const profile = await fetchProfile(accessToken);
+        setProfile(profile);
+        console.log("Profile fetched:", profile);
+      } catch (error) {
+        console.error("Error fetching profile:", error);
+      }
+    };
 
-  fetchProfileData();
-}, [code]);
-
+    fetchProfileData();
+  }, [code]);
 
   // Login functions
   // =====================================================================
@@ -136,24 +135,6 @@ useEffect(() => {
     return await result.json();
   }
 
-  // function populateUI() {
-  //   document.getElementById("displayName").innerText = profile.display_name;
-  //   if (profile.images[0]) {
-  //     const profileImage = new Image(200, 200);
-  //     profileImage.src = profile.images[0].url;
-  //     document.getElementById("avatar").appendChild(profileImage);
-  //     document.getElementById("imgUrl").innerText = profile.images[0].url;
-  //   }
-  //   document.getElementById("id").innerText = profile.id;
-  //   document.getElementById("email").innerText = profile.email;
-  //   document.getElementById("uri").innerText = profile.uri;
-  //   document
-  //     .getElementById("uri")
-  //     .setAttribute("href", profile.external_urls.spotify);
-  //   document.getElementById("url").innerText = profile.href;
-  //   document.getElementById("url").setAttribute("href", profile.href);
-  // }
-
   // =====================================================================
 
   // App functions
@@ -212,14 +193,57 @@ useEffect(() => {
     <div
       className={`${geistSans.className} ${geistMono.className} grid grid-rows-[60px_1fr_20px] pb-8 items-center justify-items-center min-h-screen gap-16 font-[family-name:var(--font-geist-sans)]`}
     >
-      <header className="w-full h-16 bg-black text-white py-16 px-4 text-3xl font-bold text-center">
-        Ja
-        <span className="text-green-600">m</span>
-        <span className="text-green-600">m</span>
-        ing
+      <header className="w-full h-16 bg-black text-white py-16 px-4 text-3xl font-bold text-center flex flex-col">
+        <span>
+          Ja
+          <span className="text-green-600">m</span>
+          <span className="text-green-600">m</span>
+          ing
+        </span>
+        {/* Move headerAvatar to the end of header */}
+
+        <div className="relative max-w-6xl mx-auto p-4 w-full flex-1 mt-auto">
+          <div
+            id="headerAvatar"
+            className="absolute right-6 md:right-12 bottom-0 translate-y-1/2
+"
+          >
+            {profile && profile.images && profile.images.length > 0 ? (
+              <Image
+                src={profile.images[0].url}
+                alt="Profile"
+                width={96}
+                height={96}
+                className="rounded-full object-cover border-2 border-green-600 w-24 h-24"
+                priority
+              />
+            ) : (
+              <div className="w-24 h-24 rounded-full bg-gray-200 flex items-center justify-center text-gray-400">
+                <svg
+                  className="w-12 h-12"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth={2}
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M5.121 17.804A9 9 0 1112 21a8.963 8.963 0 01-6.879-3.196z"
+                  />
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+                  />
+                </svg>
+              </div>
+            )}
+          </div>
+        </div>
       </header>
 
-      <main className="p-6 md:p-12 max-w-6xl mx-auto w-full">
+      <main className="p-6 pt-12 md:p-12 max-w-6xl mx-auto w-full">
         <div className="flex flex-col md:flex-row gap-8 flex-1 mb-8">
           {/* Profile Section */}
           <section
@@ -228,10 +252,13 @@ useEffect(() => {
           >
             <span id="avatar" className="mb-4">
               {profile && profile.images && profile.images.length > 0 ? (
-                <img
+                <Image
                   src={profile.images[0].url}
                   alt="Profile"
-                  className="rounded-full w-24 h-24 object-cover border-2 border-green-600"
+                  width={96}
+                  height={96}
+                  className="rounded-full object-cover border-2 border-green-600 w-24 h-24"
+                  priority
                 />
               ) : (
                 <div className="w-24 h-24 rounded-full bg-gray-200 flex items-center justify-center text-gray-400">
