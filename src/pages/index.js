@@ -38,14 +38,23 @@ export default function Home() {
   }, []);
 
   // when code changes, we can use it to fetch the profile
-  useEffect(() => {
-    if (code) {
-      const accessToken = getAccessToken(clientId, code);
-      const profile = fetchProfile(accessToken);
+useEffect(() => {
+  if (!code) return;
+
+  const fetchProfileData = async () => {
+    try {
+      const accessToken = await getAccessToken(clientId, code);
+      const profile = await fetchProfile(accessToken);
       setProfile(profile);
       console.log("Profile fetched:", profile);
+    } catch (error) {
+      console.error("Error fetching profile:", error);
     }
-  }, [code]);
+  };
+
+  fetchProfileData();
+}, [code]);
+
 
   // Login functions
   // =====================================================================
