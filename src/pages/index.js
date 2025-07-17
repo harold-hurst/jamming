@@ -25,9 +25,9 @@ import {
 export default function Home() {
 
   const clientId = "7f128ca60395447889873922956dd74a";
-  
+
   // store the value in the search field
-  const [inputValue, setInputValue] = useState(""); // for the input field
+  const [inputValue, setInputValue] = useState("");
 
   // results of the song search
   const [results, setResults] = useState([]);
@@ -41,6 +41,9 @@ export default function Home() {
 
   // set the code from the URL parameters
   const [code, setCode] = useState(null);
+
+  // show or hide profile section
+  const [showProfile, setShowProfile] = useState(true);
 
   // try to get the code from the URL parameters
   useEffect(() => {
@@ -130,7 +133,6 @@ export default function Home() {
           <span className="text-green-600">m</span>
           ing
         </span>
-        {/* Move headerAvatar to the end of header */}
 
         <div className="relative max-w-6xl mx-auto p-4 w-full flex-1 mt-auto">
           <div
@@ -173,111 +175,90 @@ export default function Home() {
       <main className="p-6 pt-12 md:p-12 max-w-6xl mx-auto w-full">
         <div className="flex flex-col md:flex-row gap-8 flex-1 mb-8">
           {/* Profile Section */}
-          <section
-            id="profile"
-            className="bg-white rounded shadow-lg border border-gray-200 p-6 w-full flex flex-col items-center"
-          >
-            <span id="avatar" className="mb-4">
-              {profile && profile.images && profile.images.length > 0 ? (
-                <img
-                  src={profile.images[0].url}
-                  alt="Profile"
-                  className="rounded-full object-cover border-2 border-green-600 w-24 h-24"
-                />
-              ) : (
-                <div className="w-24 h-24 rounded-full bg-gray-200 flex items-center justify-center text-gray-400">
-                  <svg
-                    className="w-12 h-12"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth={2}
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M5.121 17.804A9 9 0 1112 21a8.963 8.963 0 01-6.879-3.196z"
-                    />
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
-                    />
-                  </svg>
-                </div>
+          {showProfile && (
+            <section
+              id="profile"
+              className="bg-white rounded shadow-lg border border-gray-200 p-6 w-full flex flex-col items-center relative"
+            >
+              {profile && (
+                <button
+                  onClick={() => setShowProfile(false)}
+                  className="absolute top-4 right-4 text-gray-400 hover:text-black text-2xl font-bold"
+                  aria-label="Close profile"
+                >
+                  &times;
+                </button>
               )}
-            </span>
-            <h2 className="text-xl font-semibold mb-2">
-              {profile ? (
-                <>
-                  Logged in as{" "}
-                  <span id="displayName" className="text-green-600">
-                    {profile.display_name}
-                  </span>
-                </>
-              ) : (
-                "Not logged in"
+              <span id="avatar" className="mb-4">
+                {profile && profile.images && profile.images.length > 0 ? (
+                  <img
+                    src={profile.images[0].url}
+                    alt="Profile"
+                    className="rounded-full object-cover border-2 border-green-600 w-24 h-24"
+                  />
+                ) : (
+                  <div className="w-24 h-24 rounded-full bg-gray-200 flex items-center justify-center text-gray-400">
+                    <svg
+                      className="w-12 h-12"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth={2}
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M5.121 17.804A9 9 0 1112 21a8.963 8.963 0 01-6.879-3.196z"
+                      />
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+                      />
+                    </svg>
+                  </div>
+                )}
+              </span>
+              <h2 className="text-xl font-semibold mb-2">
+                {profile ? (
+                  <>
+                    Logged in as{" "}
+                    <span id="displayName" className="text-green-600">
+                      {profile.display_name}
+                    </span>
+                  </>
+                ) : (
+                  "Not logged in"
+                )}
+              </h2>
+
+              {!profile && (
+                <button
+                  onClick={handleLogin}
+                  className="mb-4 px-5 py-3 bg-black text-white rounded hover:bg-gray-800 text-lg font-semibold"
+                >
+                  Connect to Spotify
+                </button>
               )}
-            </h2>
 
-            {!profile && (
-              <button
-                onClick={handleLogin}
-                className="mb-4 px-5 py-3 bg-black text-white rounded hover:bg-gray-800 text-lg font-semibold"
-              >
-                Connect to Spotify
-              </button>
-            )}
-
-            {profile && (
-              <ul className="text-gray-700 text-base w-full mt-2 space-y-1">
-                <li>
-                  User ID:{" "}
-                  <span id="id" className="font-mono">
-                    {profile ? profile.id : "..."}
-                  </span>
-                </li>
-                <li>
-                  Email:{" "}
-                  <span id="email" className="font-mono">
-                    {profile ? profile.email : "..."}
-                  </span>
-                </li>
-                <li>
-                  Spotify URI:{" "}
-                  <a
-                    id="uri"
-                    href={profile ? profile.uri : "#"}
-                    className="text-cyan-600 hover:underline"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    {profile ? profile.uri : "..."}
-                  </a>
-                </li>
-                <li>
-                  Link:{" "}
-                  <a
-                    id="url"
-                    href={profile ? profile.external_urls?.spotify : "#"}
-                    className="text-cyan-600 hover:underline"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    {profile ? profile.external_urls?.spotify : "..."}
-                  </a>
-                </li>
-                <li>
-                  Profile Image:{" "}
-                  <span id="imgUrl" className="break-all">
-                    {profile && profile.images && profile.images.length > 0
-                      ? profile.images[0].url
-                      : "No image"}
-                  </span>
-                </li>
-              </ul>
-            )}
-          </section>
+              {profile && (
+                <ul className="text-gray-700 text-base mt-2 space-y-1 flex flex-col items-center justify-center">
+                  <li>
+                    User ID:{" "}
+                    <span id="id" className="font-mono">
+                      {profile ? profile.id : "..."}
+                    </span>
+                  </li>
+                  <li>
+                    Email:{" "}
+                    <span id="email" className="font-mono">
+                      {profile ? profile.email : "..."}
+                    </span>
+                  </li>
+                </ul>
+              )}
+            </section>
+          )}
         </div>
 
         <div className="flex flex-col md:flex-row gap-8 flex-1">
