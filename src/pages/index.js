@@ -16,16 +16,29 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+import {
+  getAccessToken,
+  fetchProfile,
+  redirectToAuthCodeFlow,
+} from "@/lib/spotifyLogin";
+
+const clientId = process.env.SPOTIFY_CLIENT_ID;
+
 export default function Home() {
+  // store the value in the search field
   const [inputValue, setInputValue] = useState(""); // for the input field
 
+  // results of the song search
   const [results, setResults] = useState([]);
 
   const [playlist, setPlaylist] = useState([]);
   const [playlistName, setPlaylistName] = useState("");
   const [savedPlaylists, setSavedPlaylists] = useState([]);
 
+  // profile object saved after authentication
   const [profile, setProfile] = useState(null);
+
+  // set the code from the URL parameters
   const [code, setCode] = useState(null);
 
   // try to get the code from the URL parameters
@@ -46,7 +59,7 @@ export default function Home() {
         const accessToken = await getAccessToken(clientId, code);
         const profile = await fetchProfile(accessToken);
         setProfile(profile);
-        console.log("Profile fetched:", profile);
+        console.log(profile);
       } catch (error) {
         console.error("Error fetching profile:", error);
       }
@@ -55,97 +68,13 @@ export default function Home() {
     fetchProfileData();
   }, [code]);
 
-  // Login functions
-  // =====================================================================
-
-  const clientId = "7f128ca60395447889873922956dd74a"; // Replace with your client ID
-
-  // step 1: handle login
-  const handleLogin = async () => {
+  // handle login
+  const handleLogin =  async () => {
     redirectToAuthCodeFlow(clientId);
   };
 
-  // step 2: redirect to auth code flow
-  // =====================================================================
-  async function redirectToAuthCodeFlow(clientId) {
-    const verifier = generateCodeVerifier(128);
-    const challenge = await generateCodeChallenge(verifier);
-
-    localStorage.setItem("verifier", verifier);
-
-    const params = new URLSearchParams();
-    params.append("client_id", clientId);
-    params.append("response_type", "code");
-    params.append("redirect_uri", "https://jamming-peach.vercel.app/");
-    params.append("scope", "user-read-private user-read-email");
-    params.append("code_challenge_method", "S256");
-    params.append("code_challenge", challenge);
-
-    document.location = `https://accounts.spotify.com/authorize?${params.toString()}`;
-  }
-
-  function generateCodeVerifier(length) {
-    let text = "";
-    let possible =
-      "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-
-    for (let i = 0; i < length; i++) {
-      text += possible.charAt(Math.floor(Math.random() * possible.length));
-    }
-    return text;
-  }
-
-  async function generateCodeChallenge(codeVerifier) {
-    const data = new TextEncoder().encode(codeVerifier);
-    const digest = await window.crypto.subtle.digest("SHA-256", data);
-    return btoa(String.fromCharCode.apply(null, [...new Uint8Array(digest)]))
-      .replace(/\+/g, "-")
-      .replace(/\//g, "_")
-      .replace(/=+$/, "");
-  }
-
-  // =====================================================================
-
-  async function getAccessToken(clientId, code) {
-    const verifier = localStorage.getItem("verifier");
-
-    const params = new URLSearchParams();
-    params.append("client_id", clientId);
-    params.append("grant_type", "authorization_code");
-    params.append("code", code);
-    params.append("redirect_uri", "https://jamming-peach.vercel.app/");
-    params.append("code_verifier", verifier);
-
-    const result = await fetch("https://accounts.spotify.com/api/token", {
-      method: "POST",
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body: params,
-    });
-
-    const { access_token } = await result.json();
-    return access_token;
-  }
-
-  async function fetchProfile(token) {
-    const result = await fetch("https://api.spotify.com/v1/me", {
-      method: "GET",
-      headers: { Authorization: `Bearer ${token}` },
-    });
-
-    return await result.json();
-  }
-
-  // =====================================================================
-
   // App functions
   // =====================================================================
-  // Filter results based on search term
-
-  const filteredResults = results.filter(
-    (song) =>
-      song.title.toLowerCase().includes(inputValue.toLowerCase()) ||
-      song.artist.toLowerCase().includes(inputValue.toLowerCase())
-  );
 
   const addToPlaylist = (song) => {
     if (!playlist.find((s) => s.id === song.id)) {
@@ -372,10 +301,10 @@ export default function Home() {
             <div className="bg-white rounded shadow-lg border border-gray-200 p-4 flex-1">
               <h2 className="text-xl font-semibold mb-4">Results</h2>
               <ul className="space-y-3">
-                {filteredResults.length === 0 && (
+                {results.length === 0 && (
                   <li className="text-gray-400">No results found.</li>
                 )}
-                {filteredResults.map((song) => (
+                {results.map((song) => (
                   <li
                     key={song.id}
                     className="flex items-center justify-between border-b border-gray-100 pb-2"
