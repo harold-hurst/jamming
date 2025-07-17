@@ -22,11 +22,9 @@ import {
   redirectToAuthCodeFlow,
 } from "@/lib/spotifyLogin";
 
-const clientId = process.env.SPOTIFY_CLIENT_ID;
-
 export default function Home() {
 
-  const clientId = process.env.SPOTIFY_CLIENT_ID;
+  const clientId = "7f128ca60395447889873922956dd74a";
   
   // store the value in the search field
   const [inputValue, setInputValue] = useState(""); // for the input field
