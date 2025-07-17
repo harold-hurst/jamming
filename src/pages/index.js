@@ -25,6 +25,9 @@ import {
 const clientId = process.env.SPOTIFY_CLIENT_ID;
 
 export default function Home() {
+
+  const clientId = process.env.SPOTIFY_CLIENT_ID;
+  
   // store the value in the search field
   const [inputValue, setInputValue] = useState(""); // for the input field
 
