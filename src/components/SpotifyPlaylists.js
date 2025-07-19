@@ -30,7 +30,7 @@ export default function SpotifyPlaylists({ profile }) {
       <h2 className="text-xl font-semibold mb-4">Spotify Playlists</h2>
       {profile && playlists.length === 0 && (
         <button
-          className="mb-4 px-5 py-3 bg-black text-white rounded hover:bg-gray-800 text-lg font-semibold transition"
+          className="mb-4 px-5 py-3 bg-black text-white rounded hover:bg-gray-800 text-lg font-semibold transition cursor-pointer"
           onClick={handleLoadPlaylists}
           disabled={loading}
         >
