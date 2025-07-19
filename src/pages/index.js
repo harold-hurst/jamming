@@ -8,6 +8,7 @@ import Header from "@/components/Header";
 import Profile from "@/components/Profile";
 import SearchSection from "@/components/SearchSection";
 import Playlist from "@/components/Playlist";
+import SpotifyPlaylists from "@/components/SpotifyPlaylists";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -19,20 +20,16 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-import {
-  getAccessToken,
-  fetchProfile,
-  redirectToAuthCodeFlow,
-} from "@/pages/api/spotifyLogin";
+import { redirectToAuthCodeFlow } from "@/pages/api/spotifyLogin";
+
+import { getAccessToken, fetchProfile } from "@/pages/api/spotifyFunctions";
 
 export default function Home() {
+
   const clientId = "7f128ca60395447889873922956dd74a";
 
   // store for holding the added playlist songs
   const [playlist, setPlaylist] = useState([]);
-
-
-
 
   // profile object saved after authentication
   const [profile, setProfile] = useState(null);
@@ -43,7 +40,7 @@ export default function Home() {
   // show or hide profile section
   const [showProfile, setShowProfile] = useState(true);
 
-  // try to get the code from the URL parameters
+  // if code present in URL try to get the code from the URL parameters
   useEffect(() => {
     const params = new URLSearchParams(window.location.search); // Get URL parameters
     const codeFromUrl = params.get("code");
@@ -51,6 +48,32 @@ export default function Home() {
       setCode(codeFromUrl);
     }
   }, []);
+
+
+
+
+
+  useEffect(() => {
+    if (!code) return;
+
+    const fetchAndStoreAccessToken = async () => {
+      try {
+        const accessToken = await getAccessToken(clientId, code);
+        if (accessToken) {
+          localStorage.setItem("spotifyAccessToken", accessToken);
+        }
+      } catch (error) {
+        console.error("Error fetching access token:", error);
+      }
+    };
+
+    fetchAndStoreAccessToken();
+  }, [code]);
+
+
+
+
+
 
   // when code changes, we can use it to fetch the profile
   useEffect(() => {
@@ -69,6 +92,9 @@ export default function Home() {
 
     fetchProfileData();
   }, [code]);
+
+
+
 
   // handle login
   const handleLogin = async () => {
@@ -92,8 +118,6 @@ export default function Home() {
     setPlaylist(playlist.filter((s) => s.id !== songId));
   };
 
-
-
   return (
     <div
       className={`${geistSans.className} ${geistMono.className} grid grid-rows-[60px_1fr_20px] pb-8 items-center justify-items-center min-h-screen gap-16 font-[family-name:var(--font-geist-sans)]`}
@@ -112,12 +136,19 @@ export default function Home() {
           )}
         </div>
 
-        <div className="flex flex-col md:flex-row gap-8 flex-1">
+        <div className="flex flex-col md:flex-row gap-8 flex-1 mb-8">
           {/* Search & Results */}
           <SearchSection playlist={playlist} addToPlaylist={addToPlaylist} />
 
           {/* Playlist */}
-          <Playlist playlist={playlist} removeFromPlaylist={removeFromPlaylist} resetPlaylist={resetPlaylist}/>
+          <Playlist
+            playlist={playlist}
+            removeFromPlaylist={removeFromPlaylist}
+            resetPlaylist={resetPlaylist}
+          />
+        </div>
+        <div className="flex flex-col md:flex-row gap-8 flex-1 mb-8">
+          <SpotifyPlaylists profile={profile}/>
         </div>
       </main>
       <footer>
