@@ -62,7 +62,8 @@ export default function Home() {
         const accessToken = await getAccessToken(clientId, code);
         const profile = await fetchProfile(accessToken);
         setProfile(profile);
-        console.log(profile);
+        const spotifyPlaylists = await fetchPlaylists(accessToken);
+        setSpotifyPlaylists(spotifyPlaylists.items);
       } catch (error) {
         console.error("Error fetching profile:", error);
       }
