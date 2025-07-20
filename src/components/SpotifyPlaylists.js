@@ -1,55 +1,37 @@
 import { useState } from "react";
 import axios from "axios";
 
-export default function SpotifyPlaylists({ profile }) {
-  const [playlists, setPlaylists] = useState([]);
+export default function SpotifyPlaylists({ spotifyPlaylists }) {
   const [loading, setLoading] = useState(false);
 
-  const handleLoadPlaylists = async () => {
-    setLoading(true);
-    try {
-      // Get access token from localStorage
-      const accessToken = localStorage.getItem("spotifyAccessToken");
-      if (!accessToken) {
-        alert("No Spotify access token found.");
-        setLoading(false);
-        return;
-      }
-      const res = await axios.get("/api/fetchPlaylists", {
-        params: { accessToken },
-      });
-      setPlaylists(res.data.items || []);
-    } catch (error) {
-      setPlaylists([]);
-    }
-    setLoading(false);
-  };
 
   return (
     <section className="bg-white rounded shadow-lg border border-gray-200 p-6 w-full flex flex-col">
       <h2 className="text-xl font-semibold mb-4">Spotify Playlists</h2>
-      {profile && playlists.length === 0 && (
+      {spotifyPlaylists.length === 0 && (
         <button
           className="mb-4 px-5 py-3 bg-black text-white rounded hover:bg-gray-800 text-lg font-semibold transition cursor-pointer"
-          onClick={handleLoadPlaylists}
           disabled={loading}
         >
           {loading ? "Loading..." : "Load Spotify Playlists"}
         </button>
       )}
-      {playlists.length > 0 ? (
+      {spotifyPlaylists.length > 0 ? (
         <ul className="space-y-2">
-          {playlists.map((playlist) => (
+          {spotifyPlaylists.map((playlist) => (
             <li key={playlist.id} className="border-b border-gray-100 pb-2">
               <span className="font-medium">{playlist.name}</span>
               <span className="text-gray-500 ml-2">
-                by {playlist.owner.display_name} &middot; {playlist.tracks.total} tracks
+                by {playlist.owner.display_name} &middot;{" "}
+                {playlist.tracks.total} tracks
               </span>
             </li>
           ))}
         </ul>
       ) : (
-        !loading && <div className="text-gray-500 text-base">No playlists loaded.</div>
+        !loading && (
+          <div className="text-gray-500 text-base">No playlists loaded.</div>
+        )
       )}
     </section>
   );

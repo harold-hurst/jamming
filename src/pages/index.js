@@ -23,6 +23,7 @@ const geistMono = Geist_Mono({
 import { redirectToAuthCodeFlow } from "@/pages/api/spotifyLogin";
 
 import { getAccessToken, fetchProfile } from "@/pages/api/spotifyFunctions";
+import { fetchPlaylists } from "@/pages/api/fetchPlaylists";
 
 export default function Home() {
 
@@ -40,6 +41,9 @@ export default function Home() {
   // show or hide profile section
   const [showProfile, setShowProfile] = useState(true);
 
+  // store for holding Spotify playlists
+  const [spotifyPlaylists, setSpotifyPlaylists] = useState([]);
+
   // if code present in URL try to get the code from the URL parameters
   useEffect(() => {
     const params = new URLSearchParams(window.location.search); // Get URL parameters
@@ -48,32 +52,6 @@ export default function Home() {
       setCode(codeFromUrl);
     }
   }, []);
-
-
-
-
-
-  useEffect(() => {
-    if (!code) return;
-
-    const fetchAndStoreAccessToken = async () => {
-      try {
-        const accessToken = await getAccessToken(clientId, code);
-        if (accessToken) {
-          localStorage.setItem("spotifyAccessToken", accessToken);
-        }
-      } catch (error) {
-        console.error("Error fetching access token:", error);
-      }
-    };
-
-    fetchAndStoreAccessToken();
-  }, [code]);
-
-
-
-
-
 
   // when code changes, we can use it to fetch the profile
   useEffect(() => {
@@ -90,11 +68,19 @@ export default function Home() {
       }
     };
 
+    const fetchSpotifyPlaylists = async () => {
+      try {
+        const accessToken = await getAccessToken(clientId, code);
+        const playlists = await fetchPlaylists(accessToken);
+        setSpotifyPlaylists(playlists.items || []);
+      } catch (error) {
+        console.error("Error fetching playlists:", error);
+      }
+    };
+
     fetchProfileData();
+    fetchSpotifyPlaylists();
   }, [code]);
-
-
-
 
   // handle login
   const handleLogin = async () => {
@@ -148,7 +134,7 @@ export default function Home() {
           />
         </div>
         <div className="flex flex-col md:flex-row gap-8 flex-1 mb-8">
-          <SpotifyPlaylists profile={profile}/>
+          <SpotifyPlaylists spotifyPlaylists={spotifyPlaylists} />
         </div>
       </main>
       <footer>
