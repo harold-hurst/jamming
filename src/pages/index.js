@@ -68,18 +68,18 @@ export default function Home() {
       }
     };
 
-    const fetchSpotifyPlaylists = async () => {
-      try {
-        const accessToken = await getAccessToken(clientId, code);
-        const playlists = await fetchPlaylists(accessToken);
-        setSpotifyPlaylists(playlists.items || []);
-      } catch (error) {
-        console.error("Error fetching playlists:", error);
-      }
-    };
+    // const fetchSpotifyPlaylists = async () => {
+    //   try {
+    //     const accessToken = await getAccessToken(clientId, code);
+    //     const playlists = await fetchPlaylists(accessToken);
+    //     setSpotifyPlaylists(playlists.items || []);
+    //   } catch (error) {
+    //     console.error("Error fetching playlists:", error);
+    //   }
+    // };
 
     fetchProfileData();
-    fetchSpotifyPlaylists();
+    // fetchSpotifyPlaylists();
   }, [code]);
 
   // handle login
