@@ -68,7 +68,8 @@ export default function Home() {
         ]);
 
         setProfile(profileData);
-        setSpotifyPlaylists(playlistsData);
+        setSpotifyPlaylists(playlistsData.items);
+
       } catch (error) {
         console.error("Spotify API error:", error);
       }
