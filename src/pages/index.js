@@ -35,7 +35,7 @@ export default function Home() {
   const [profile, setProfile] = useState(null);
 
   // set the code from the URL parameters
-  const [code, setCode] = useState(null);
+  const [authCode, setauthCode] = useState(null);
 
   // show or hide profile section
   const [showProfile, setShowProfile] = useState(true);
@@ -43,26 +43,26 @@ export default function Home() {
   // store for holding Spotify playlists
   const [spotifyPlaylists, setSpotifyPlaylists] = useState([]);
 
-  // if code present in URL try to get the code from the URL parameters
+  // if authCode present in URL try to get the code from the URL parameters
   useEffect(() => {
 
     
     const params = new URLSearchParams(window.location.search); // Get URL parameters
-    const codeFromUrl = params.get("code");
+    const authCodeFromUrl = params.get("code");
 
-    console.log("Code from URL:", codeFromUrl);
-    if (codeFromUrl) {
-      setCode(codeFromUrl);
+    console.log("authCode from URL:", authCodeFromUrl);
+    if (authCodeFromUrl) {
+      setauthCode(authCodeFromUrl);
     }
   }, []);
 
   // when code changes, we can use it to fetch the profile
   useEffect(() => {
-    if (!code) return;
+    if (!authCode) return;
 
     const fetchData = async () => {
       try {
-        const accessToken = await getAccessToken(clientId, code);
+        const accessToken = await getAccessToken(clientId, authCode);
         // Use the imported helper functions
         const [profileData, playlistsData] = await Promise.all([
           fetchProfile(accessToken),
@@ -80,7 +80,7 @@ export default function Home() {
     };
 
     fetchData();
-  }, [code]);
+  }, [authCode]);
 
   // handle login
   const handleLogin = async () => {

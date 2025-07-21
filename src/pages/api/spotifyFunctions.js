@@ -1,5 +1,12 @@
 // Functions for fetching the profile object once authenticated
 export async function getAccessToken(clientId, code) {
+  // Check for a saved access token in localStorage
+  const savedToken = localStorage.getItem("access_token");
+  if (savedToken) {
+    return savedToken;
+  }
+
+  // Get stored code verifier for PKCE flow
   const verifier = localStorage.getItem("verifier");
 
   const params = new URLSearchParams();
@@ -9,15 +16,24 @@ export async function getAccessToken(clientId, code) {
   params.append("redirect_uri", "https://jamming-peach.vercel.app/");
   params.append("code_verifier", verifier);
 
+  // Request a new access token from Spotify
   const result = await fetch("https://accounts.spotify.com/api/token", {
     method: "POST",
     headers: { "Content-Type": "application/x-www-form-urlencoded" },
     body: params,
   });
 
-  const { access_token } = await result.json();
-  return access_token;
+  const data = await result.json();
+  const accessToken = data.access_token;
+
+  // Save the token for later use
+  if (accessToken) {
+    localStorage.setItem("access_token", accessToken);
+  }
+
+  return accessToken;
 }
+
 
 // Return spotify profile data
 export async function fetchProfile(token) {
