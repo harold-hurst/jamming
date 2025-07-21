@@ -20,7 +20,7 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-import { redirectToAuthCodeFlow } from "@/pages/api/spotifyLogin";
+import { redirectToAuthCodeFlow, logout } from "@/pages/api/spotifyLogin";
 
 import { getAccessToken, fetchProfile } from "@/pages/api/spotifyFunctions";
 import { fetchPlaylists } from "@/pages/api/fetchPlaylists";
@@ -87,6 +87,11 @@ export default function Home() {
     redirectToAuthCodeFlow(clientId);
   };
 
+  // handle logout
+  const handleLogout = async () => {
+
+  }
+
   const resetPlaylist = () => {
     setPlaylist([]);
   };
@@ -108,7 +113,7 @@ export default function Home() {
     <div
       className={`${geistSans.className} ${geistMono.className} grid grid-rows-[60px_1fr_20px] pb-8 items-center justify-items-center min-h-screen gap-16 font-[family-name:var(--font-geist-sans)]`}
     >
-      <Header profile={profile} />
+      <Header profile={profile} handleLogin={handleLogin} logout={logout} />
 
       <main className="p-6 pt-12 md:p-12 max-w-6xl mx-auto w-full">
         <div className="flex flex-col md:flex-row gap-8 flex-1 mb-8">
@@ -118,6 +123,7 @@ export default function Home() {
               profile={profile}
               setShowProfile={setShowProfile}
               handleLogin={handleLogin}
+              handleLogout={handleLogout}
             />
           )}
         </div>

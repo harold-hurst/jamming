@@ -19,8 +19,8 @@ async function generateCodeChallenge(codeVerifier) {
     .replace(/=+$/, "");
 }
 
+//  redirects back with the auth code in url parameters
 export async function redirectToAuthCodeFlow(clientId) {
-  
   const verifier = generateCodeVerifier(128);
   const challenge = await generateCodeChallenge(verifier);
 
@@ -37,3 +37,10 @@ export async function redirectToAuthCodeFlow(clientId) {
   document.location = `https://accounts.spotify.com/authorize?${params.toString()}`;
 }
 
+export async function logout() {
+  localStorage.removeItem("access_token");
+  localStorage.removeItem("spotifyAccessToken");
+  localStorage.removeItem("verifier");
+
+  document.location = "/";
+}

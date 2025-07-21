@@ -7,6 +7,7 @@ export async function getAccessToken(clientId, code) {
   }
 
   // Get stored code verifier for PKCE flow
+  // stored during redirect to auth code flow
   const verifier = localStorage.getItem("verifier");
 
   const params = new URLSearchParams();
