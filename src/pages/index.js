@@ -26,7 +26,6 @@ import { getAccessToken, fetchProfile } from "@/pages/api/spotifyFunctions";
 import { fetchPlaylists } from "@/pages/api/fetchPlaylists";
 
 export default function Home() {
-
   const clientId = "7f128ca60395447889873922956dd74a";
 
   // store for holding the added playlist songs
@@ -57,31 +56,45 @@ export default function Home() {
   useEffect(() => {
     if (!code) return;
 
-    const fetchProfileData = async () => {
+    alert("useEffect run");
+
+    const fetchData = async () => {
       try {
         const accessToken = await getAccessToken(clientId, code);
-        const profile = await fetchProfile(accessToken);
-        setProfile(profile);
-        const spotifyPlaylists = await fetchPlaylists(accessToken);
-        setSpotifyPlaylists(spotifyPlaylists.items);
+        // Use the imported helper functions
+        const [profileData, playlistsData] = await Promise.all([
+          fetchProfile(accessToken),
+          fetchPlaylists(accessToken),
+        ]);
+
+        setProfile(profileData);
+        setSpotifyPlaylists(playlistsData);
       } catch (error) {
-        console.error("Error fetching profile:", error);
+        console.error("Spotify API error:", error);
       }
     };
 
-    // const fetchSpotifyPlaylists = async () => {
-    //   try {
-    //     const accessToken = await getAccessToken(clientId, code);
-    //     const playlists = await fetchPlaylists(accessToken);
-    //     setSpotifyPlaylists(playlists.items || []);
-    //   } catch (error) {
-    //     console.error("Error fetching playlists:", error);
-    //   }
-    // };
+    fetchData();
 
-    fetchProfileData();
-    // fetchSpotifyPlaylists();
   }, [code]);
+
+  // when code changes, we can use it to fetch the profile
+  // useEffect(() => {
+  //   if (!code) return;
+
+  //   const fetchSpotifyPlaylists = async () => {
+  //     try {
+  //       console.log("Fetching Spotify playlists with code:", code);
+  //       const accessToken = await getAccessToken(clientId, code);
+  //       const spotifyPlaylists = await fetchPlaylists(accessToken);
+  //       setSpotifyPlaylists(spotifyPlaylists.items);
+  //     } catch (error) {
+  //       console.error("Error fetching profile:", error);
+  //     }
+  //   };
+
+  //   fetchSpotifyPlaylists();
+  // }, [code]);
 
   // handle login
   const handleLogin = async () => {
