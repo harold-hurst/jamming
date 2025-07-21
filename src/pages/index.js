@@ -45,8 +45,6 @@ export default function Home() {
 
   // if authCode present in URL try to get the code from the URL parameters
   useEffect(() => {
-
-    
     const params = new URLSearchParams(window.location.search); // Get URL parameters
     const authCodeFromUrl = params.get("code");
 
@@ -138,6 +136,7 @@ export default function Home() {
             removeFromPlaylist={removeFromPlaylist}
             resetPlaylist={resetPlaylist}
             profile={profile}
+            accessToken={getAccessToken(clientId, authCode)}
           />
         </div>
         <div className="flex flex-col md:flex-row gap-8 flex-1 mb-8">
