@@ -1,21 +1,17 @@
 import { useState } from "react";
 import axios from "axios";
 
-export default function SpotifyPlaylists({ spotifyPlaylists }) {
-  const [loading, setLoading] = useState(false);
-
+export default function SpotifyPlaylists({ spotifyPlaylists, profile }) {
+  const isDisabled = !profile;
 
   return (
-    <section className="bg-white rounded shadow-lg border border-gray-200 p-6 w-full flex flex-col">
-      <h2 className="text-xl font-semibold mb-4">Spotify Playlists</h2>
-      {spotifyPlaylists.length === 0 && (
-        <button
-          className="mb-4 px-5 py-3 bg-black text-white rounded hover:bg-gray-800 text-lg font-semibold transition cursor-pointer"
-          disabled={loading}
-        >
-          {loading ? "Loading..." : "Load Spotify Playlists"}
-        </button>
-      )}
+    <section
+      className={`bg-white rounded shadow-lg border border-gray-200 p-6 w-full flex flex-col transition ${
+        isDisabled ? "opacity-50 pointer-events-none select-none" : ""
+      }`}
+    >
+      <h2 className="text-xl font-semibold mb-4">Your Spotify Playlists</h2>
+
       {spotifyPlaylists.length > 0 ? (
         <ul className="space-y-2">
           {spotifyPlaylists.map((playlist) => (
@@ -29,9 +25,7 @@ export default function SpotifyPlaylists({ spotifyPlaylists }) {
           ))}
         </ul>
       ) : (
-        !loading && (
-          <div className="text-gray-500 text-base">No playlists loaded.</div>
-        )
+        <div className="text-gray-500 text-base">No Spotify Playlists.</div>
       )}
     </section>
   );

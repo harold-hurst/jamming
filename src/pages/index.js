@@ -45,8 +45,12 @@ export default function Home() {
 
   // if code present in URL try to get the code from the URL parameters
   useEffect(() => {
+
+    
     const params = new URLSearchParams(window.location.search); // Get URL parameters
     const codeFromUrl = params.get("code");
+
+    console.log("Code from URL:", codeFromUrl);
     if (codeFromUrl) {
       setCode(codeFromUrl);
     }
@@ -55,8 +59,6 @@ export default function Home() {
   // when code changes, we can use it to fetch the profile
   useEffect(() => {
     if (!code) return;
-
-    alert("useEffect run");
 
     const fetchData = async () => {
       try {
@@ -67,35 +69,18 @@ export default function Home() {
           fetchPlaylists(accessToken),
         ]);
 
+        console.log("Profile Data:", profileData);
+        console.log("Playlists Data:", playlistsData);
+
         setProfile(profileData);
         setSpotifyPlaylists(playlistsData.items);
-
       } catch (error) {
         console.error("Spotify API error:", error);
       }
     };
 
     fetchData();
-
   }, [code]);
-
-  // when code changes, we can use it to fetch the profile
-  // useEffect(() => {
-  //   if (!code) return;
-
-  //   const fetchSpotifyPlaylists = async () => {
-  //     try {
-  //       console.log("Fetching Spotify playlists with code:", code);
-  //       const accessToken = await getAccessToken(clientId, code);
-  //       const spotifyPlaylists = await fetchPlaylists(accessToken);
-  //       setSpotifyPlaylists(spotifyPlaylists.items);
-  //     } catch (error) {
-  //       console.error("Error fetching profile:", error);
-  //     }
-  //   };
-
-  //   fetchSpotifyPlaylists();
-  // }, [code]);
 
   // handle login
   const handleLogin = async () => {
@@ -146,10 +131,11 @@ export default function Home() {
             playlist={playlist}
             removeFromPlaylist={removeFromPlaylist}
             resetPlaylist={resetPlaylist}
+            profile={profile}
           />
         </div>
         <div className="flex flex-col md:flex-row gap-8 flex-1 mb-8">
-          <SpotifyPlaylists spotifyPlaylists={spotifyPlaylists} />
+          <SpotifyPlaylists spotifyPlaylists={spotifyPlaylists} profile={profile} />
         </div>
       </main>
       <footer>
