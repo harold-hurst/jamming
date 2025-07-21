@@ -21,6 +21,13 @@ async function generateCodeChallenge(codeVerifier) {
 
 //  redirects back with the auth code in url parameters
 export async function redirectToAuthCodeFlow(clientId) {
+
+  // Clear any existing tokens
+  localStorage.removeItem("access_token");
+  localStorage.removeItem("spotifyAccessToken");
+  localStorage.removeItem("verifier");
+
+
   const verifier = generateCodeVerifier(128);
   const challenge = await generateCodeChallenge(verifier);
 
