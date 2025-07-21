@@ -28,20 +28,29 @@ import { fetchPlaylists } from "@/pages/api/fetchPlaylists";
 export default function Home() {
   const clientId = "7f128ca60395447889873922956dd74a";
 
+  // =============================================================
+
+  // set the code from the URL parameters
+  const [authCode, setAuthCode] = useState(null);
+
+  // store for holding the access token
+  const [accessToken, setAccessToken] = useState(null);
+
+  // =============================================================
+
   // store for holding the added playlist songs
   const [playlist, setPlaylist] = useState([]);
 
   // profile object saved after authentication
   const [profile, setProfile] = useState(null);
 
-  // set the code from the URL parameters
-  const [authCode, setauthCode] = useState(null);
-
   // show or hide profile section
   const [showProfile, setShowProfile] = useState(true);
 
   // store for holding Spotify playlists
   const [spotifyPlaylists, setSpotifyPlaylists] = useState([]);
+
+  // =============================================================
 
   // if authCode present in URL try to get the code from the URL parameters
   useEffect(() => {
@@ -50,18 +59,30 @@ export default function Home() {
 
     console.log("authCode from URL:", authCodeFromUrl);
     if (authCodeFromUrl) {
-      setauthCode(authCodeFromUrl);
+      setAuthCode(authCodeFromUrl);
     }
   }, []);
 
-  // when code changes, we can use it to fetch the profile
+  // =============================================================
+
   useEffect(() => {
-    if (!authCode) return;
+    const fetchToken = async () => {
+      if (!authCode) return;
+      const token = await getAccessToken(clientId, authCode);
+      setAccessToken(token);
+    };
+
+    fetchToken();
+  }, [authCode]);
+
+  // =============================================================
+
+  // fetch profile and playlists once accessToken is set
+  useEffect(() => {
+    if (!accessToken) return;
 
     const fetchData = async () => {
       try {
-        const accessToken = await getAccessToken(clientId, authCode);
-        // Use the imported helper functions
         const [profileData, playlistsData] = await Promise.all([
           fetchProfile(accessToken),
           fetchPlaylists(accessToken),
@@ -77,8 +98,10 @@ export default function Home() {
       }
     };
 
+    // =============================================================
+
     fetchData();
-  }, [authCode]);
+  }, [accessToken]);
 
   // handle login
   const handleLogin = async () => {
@@ -86,9 +109,7 @@ export default function Home() {
   };
 
   // handle logout
-  const handleLogout = async () => {
-
-  }
+  const handleLogout = async () => {};
 
   const resetPlaylist = () => {
     setPlaylist([]);
@@ -131,16 +152,21 @@ export default function Home() {
           <SearchSection playlist={playlist} addToPlaylist={addToPlaylist} />
 
           {/* Playlist */}
-          <Playlist
-            playlist={playlist}
-            removeFromPlaylist={removeFromPlaylist}
-            resetPlaylist={resetPlaylist}
-            profile={profile}
-            accessToken={getAccessToken(clientId, authCode)}
-          />
+
+            <Playlist
+              playlist={playlist}
+              removeFromPlaylist={removeFromPlaylist}
+              resetPlaylist={resetPlaylist}
+              profile={profile}
+              accessToken={accessToken}
+            />
+          
         </div>
         <div className="flex flex-col md:flex-row gap-8 flex-1 mb-8">
-          <SpotifyPlaylists spotifyPlaylists={spotifyPlaylists} profile={profile} />
+          <SpotifyPlaylists
+            spotifyPlaylists={spotifyPlaylists}
+            profile={profile}
+          />
         </div>
       </main>
       <footer>

@@ -1,9 +1,8 @@
 export default function savedPlaylists({ savedPlaylists, profile, accessToken }) {
 
-
-
   const handleUploadPlaylist = async (name, songs) => {
     console.log("Uploading playlist:", name, songs);
+    console.log("Access Token:", accessToken);
 
     const response = await fetch("/api/uploadPlaylist", {
       method: "POST",
