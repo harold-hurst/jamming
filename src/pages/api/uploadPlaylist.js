@@ -44,8 +44,8 @@ export default async function handler(req, res) {
 
     const playlistData = await createRes.json();
 
-    // Check if playlist creation was successful
-    if (!createRes.ok || !playlistData.id) {
+    // Check if playlist creation was successful  || !playlistData.id
+    if (!createRes.ok) {
       return res.status(createRes.status || 500).json({ error: "Failed to create playlist step"});
     }
 
