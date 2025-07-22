@@ -5,9 +5,6 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: "Method Not Allowed" });
   }
 
-
-  console.log(req.body); // Log the request body for debugging
-  
   // Destructure the request body
   const { accessToken, name, description = "", public: isPublic = false, tracks = [] } = req.body;
 

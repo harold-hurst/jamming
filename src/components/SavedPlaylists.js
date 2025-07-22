@@ -1,6 +1,23 @@
-export default function savedPlaylists({ savedPlaylists, profile, accessToken }) {
-
+export default function savedPlaylists({
+  savedPlaylists,
+  profile,
+  accessToken,
+}) {
   const handleUploadPlaylist = async (name, songs) => {
+    const requestData = {
+      accessToken: accessToken,
+      name: name,
+      description: "Created with my Jamming app",
+      public: true,
+      tracks: songs,
+    };
+
+    console.log("Uploading playlist with request:", {
+      url: "/api/uploadPlaylist",
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: requestData,
+    });
 
     const response = await fetch("/api/uploadPlaylist", {
       method: "POST",
