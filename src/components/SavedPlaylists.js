@@ -1,8 +1,6 @@
 export default function savedPlaylists({ savedPlaylists, profile, accessToken }) {
 
   const handleUploadPlaylist = async (name, songs) => {
-    console.log("Uploading playlist:", name, songs);
-    console.log("Access Token:", accessToken);
 
     const response = await fetch("/api/uploadPlaylist", {
       method: "POST",
@@ -12,7 +10,7 @@ export default function savedPlaylists({ savedPlaylists, profile, accessToken })
       body: JSON.stringify({
         accessToken: accessToken, // Use the accessToken prop
         name: name,
-        description: "Created with my app",
+        description: "Created with my Jamming app",
         public: true,
         tracks: songs,
       }),
@@ -26,9 +24,6 @@ export default function savedPlaylists({ savedPlaylists, profile, accessToken })
       console.error("Upload failed:", data.error);
     }
   };
-
-
-
 
   return (
     <div className="bg-white rounded shadow-lg border border-gray-200 p-4 mt-4">
