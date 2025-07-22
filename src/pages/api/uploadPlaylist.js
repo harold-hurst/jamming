@@ -14,14 +14,17 @@ export default async function handler(req, res) {
   }
 
   try {
+
     // 1. Get the current user's Spotify ID
     const userRes = await fetch("https://api.spotify.com/v1/me", {
       headers: { Authorization: `Bearer ${accessToken}` },
     });
+
     if (!userRes.ok) {
       const err = await userRes.json();
       return res.status(userRes.status).json({ error: "Failed to get user", details: err });
     }
+
     const userData = await userRes.json();
     const userId = userData.id;
 
@@ -43,7 +46,7 @@ export default async function handler(req, res) {
 
     // Check if playlist creation was successful
     if (!createRes.ok || !playlistData.id) {
-      return res.status(createRes.status || 500).json({ error: "Failed to create playlist", details: playlistData });
+      return res.status(createRes.status || 500).json({ error: "Failed to create playlist step"});
     }
 
     // 3. Add tracks to the new playlist (if any)
