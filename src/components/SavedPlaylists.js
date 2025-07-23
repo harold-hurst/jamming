@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-export default function savedPlaylists({
+export default function SavedPlaylists({
   savedPlaylists,
   profile,
   accessToken,
