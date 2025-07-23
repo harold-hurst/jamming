@@ -1,26 +1,14 @@
+import { useState } from "react";
+
 export default function savedPlaylists({
   savedPlaylists,
   profile,
   accessToken,
   refreshPlaylists,
 }) {
-  const handleUploadPlaylist = async (name, songs) => {
+  const [uploadedIdx, setUploadedIdx] = useState(null);
 
-    // const requestData = {
-    //   accessToken: accessToken,
-    //   name: name,
-    //   description: "Created with my Jamming app",
-    //   public: true,
-    //   tracks: songs,
-    // };
-
-    // console.log("Uploading playlist with request:", {
-    //   url: "/api/uploadPlaylist",
-    //   method: "POST",
-    //   headers: { "Content-Type": "application/json" },
-    //   body: requestData,
-    // });
-
+  const handleUploadPlaylist = async (name, songs, idx) => {
     const response = await fetch("/api/uploadPlaylist", {
       method: "POST",
       headers: {
@@ -40,10 +28,12 @@ export default function savedPlaylists({
     const data = await response.json();
 
     if (response.ok) {
-    //   console.log("Playlist uploaded:", data.playlist);
-        refreshPlaylists(); // Trigger a refresh of playlists
+      setUploadedIdx(idx); // Set the uploaded index to change the icon
+      setTimeout(() => {
+        refreshPlaylists(); // Trigger a refresh of playlists after a short delay
+      }, 1000);
     } else {
-    //   console.error("Upload failed:", data.error);
+      //   console.error("Upload failed:", data.error);
     }
   };
 
@@ -58,42 +48,65 @@ export default function savedPlaylists({
             song.artist.split(",").forEach((a) => uniqueArtists.add(a.trim()));
           });
           return (
-            <li key={idx} className="flex items-center justify-between">
-              <div>
-                <div className="font-bold mb-2">{pl.name}</div>
-                <div className="ml-4 text-gray-600 text-sm">
-                  {pl.songs.length} {pl.songs.length === 1 ? "song" : "songs"}{" "}
-                  &middot; {uniqueArtists.size}{" "}
-                  {uniqueArtists.size === 1 ? "artist" : "artists"}
+            <>
+              <li key={idx} className="flex items-center justify-between">
+                
+                <div>
+                  <div className="font-bold mb-2">{pl.name}</div>
+                  <div className="ml-4 text-gray-600 text-sm">
+                    {pl.songs.length} {pl.songs.length === 1 ? "song" : "songs"}{" "}
+                    &middot; {uniqueArtists.size}{" "}
+                    {uniqueArtists.size === 1 ? "artist" : "artists"}
+                  </div>
                 </div>
-              </div>
-              <button
-                className={`ml-4 bg-green-600 hover:bg-green-700 text-white rounded-full p-2 transition cursor-pointer ${
-                  !profile ? "opacity-50 pointer-events-none select-none" : ""
-                }`}
-                title="Upload playlist to Spotify"
-                disabled={!profile}
-                onClick={() => handleUploadPlaylist(pl.name, pl.songs)}
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-5 w-5"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  strokeWidth={2}
+
+                <button
+                  className={`ml-4 bg-green-600 hover:bg-green-700 text-white rounded-full p-2 transition cursor-pointer ${
+                    !profile || uploadedIdx === idx ? "opacity-50 pointer-events-none select-none" : ""
+                  }`}
+                  title="Upload playlist to Spotify"
+                  disabled={!profile || uploadedIdx === idx}
+                  onClick={() => handleUploadPlaylist(pl.name, pl.songs, idx)}
                 >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5-5m0 0l5 5m-5-5v12"
-                  />
-                </svg>
-              </button>
+                  {uploadedIdx === idx ? (
+                    // Success check icon
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-5 w-5"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                      strokeWidth={2}
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M5 13l4 4L19 7"
+                      />
+                    </svg>
+                  ) : (
+                    // Upload icon
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-5 w-5"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                      strokeWidth={2}
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5-5m0 0l5 5m-5-5v12"
+                      />
+                    </svg>
+                  )}
+                </button>
+              </li>
               {idx < savedPlaylists.length - 1 && (
                 <hr className="my-4 border-t border-gray-200 w-full" />
               )}
-            </li>
+            </>
           );
         })}
       </ul>

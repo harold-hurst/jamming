@@ -50,6 +50,7 @@ export default function Home() {
   // store for holding Spotify playlists
   const [spotifyPlaylists, setSpotifyPlaylists] = useState([]);
 
+  // reload spotify playlists when a new playlist is uploaded
   const [refreshTrigger, setRefreshTrigger] = useState(0);
 
   // =============================================================
@@ -116,13 +117,6 @@ export default function Home() {
     };
 
     fetchSpotifyPlaylists();
-
-    // const loadPlaylists = async () => {
-    //   const data = await fetchPlaylists(accessToken);
-    //   setPlaylists(data.items);
-    // };
-
-    // loadPlaylists();
 
   }, [refreshTrigger]);
 
