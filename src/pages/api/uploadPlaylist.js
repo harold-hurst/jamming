@@ -74,9 +74,22 @@ export default async function handler(req, res) {
     // 3. Add tracks to the new playlist (if any)
     if (tracks.length > 0) {
       // Accept both array of objects with uri or array of uri strings
+      //   const uris = tracks.map((track) =>
+      //     typeof track === "string" ? track : track.uri
+      //   );
+
       const uris = tracks.map((track) =>
-        typeof track === "string" ? track : track.uri
+        typeof track === "string"
+          ? track.startsWith("spotify:track:")
+            ? track
+            : `spotify:track:${track}`
+          : `spotify:track:${track.uri}`
       );
+
+      console.log("Playlist ID:", playlistData.id);
+
+      console.log("Adding tracks with URIs:", uris);
+
       const addTracksRes = await fetch(
         `https://api.spotify.com/v1/playlists/${playlistData.id}/tracks`,
         {
