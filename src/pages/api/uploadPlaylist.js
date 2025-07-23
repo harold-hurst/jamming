@@ -89,6 +89,17 @@ export default async function handler(req, res) {
         }
       );
 
+      // TESTING ========================
+
+      // Log status and raw response body
+      const addTracksText = await addTracksRes.text();
+      console.log("addTracksRes:", addTracksRes);
+      console.log("addTracksText status:", addTracksRes.status);
+
+      console.log("addTracksText body:", addTracksText);
+
+      // TESTING ========================
+
       // Check if adding tracks was successful
       if (!addTracksRes.ok) {
         const err = await addTracksRes.json();
