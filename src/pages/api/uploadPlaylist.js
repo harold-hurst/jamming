@@ -80,10 +80,6 @@ export default async function handler(req, res) {
 
       const uris = tracks.map((track) => `spotify:track:${track.id}`);
 
-      console.log("Playlist ID:", playlistData.id);
-
-      console.log("Adding tracks with URIs:", uris);
-
       const addTracksRes = await fetch(
         `https://api.spotify.com/v1/playlists/${playlistData.id}/tracks`,
         {
@@ -99,11 +95,11 @@ export default async function handler(req, res) {
       // TESTING ========================
 
       // Log status and raw response body
-      const addTracksText = await addTracksRes.text();
-      console.log("addTracksRes:", addTracksRes);
-      console.log("addTracksText status:", addTracksRes.status);
+    //   const addTracksText = await addTracksRes.text();
+    //   console.log("addTracksRes:", addTracksRes);
+    //   console.log("addTracksText status:", addTracksRes.status);
 
-      console.log("addTracksText body:", addTracksText);
+    //   console.log("addTracksText body:", addTracksText);
 
       // TESTING ========================
 
@@ -120,7 +116,6 @@ export default async function handler(req, res) {
     return res.status(200).json({ success: true, playlist: playlistData });
   } catch (error) {
     // Handle unexpected errors
-    console.log(error);
     return res
       .status(500)
       .json({ error: "Failed to upload playlist", details: error.message });

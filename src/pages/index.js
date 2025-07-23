@@ -50,6 +50,8 @@ export default function Home() {
   // store for holding Spotify playlists
   const [spotifyPlaylists, setSpotifyPlaylists] = useState([]);
 
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
+
   // =============================================================
 
   // if authCode present in URL try to get the code from the URL parameters
@@ -64,6 +66,7 @@ export default function Home() {
 
   // =============================================================
 
+  // then fetch the access token using the authCode
   useEffect(() => {
     const fetchToken = async () => {
       if (!authCode) return;
@@ -94,10 +97,33 @@ export default function Home() {
       }
     };
 
-    // =============================================================
-
     fetchData();
   }, [accessToken]);
+
+  // =============================================================
+
+  // Fetch playlists whenever refreshTrigger changes
+  useEffect(() => {
+    if (!accessToken) return;
+
+    playlistsData = fetchPlaylists(accessToken);
+    setSpotifyPlaylists(playlistsData.items);
+
+    // const loadPlaylists = async () => {
+    //   const data = await fetchPlaylists(accessToken);
+    //   setPlaylists(data.items);
+    // };
+
+    // loadPlaylists();
+
+  }, [refreshTrigger]);
+
+  // =============================================================
+
+    // Function to trigger refresh
+  const refreshPlaylists = () => {
+    setRefreshTrigger((prev) => prev + 1);
+  };
 
   // handle login
   const handleLogin = async () => {
@@ -149,14 +175,14 @@ export default function Home() {
 
           {/* Playlist */}
 
-            <Playlist
-              playlist={playlist}
-              removeFromPlaylist={removeFromPlaylist}
-              resetPlaylist={resetPlaylist}
-              profile={profile}
-              accessToken={accessToken}
-            />
-          
+          <Playlist
+            playlist={playlist}
+            removeFromPlaylist={removeFromPlaylist}
+            resetPlaylist={resetPlaylist}
+            profile={profile}
+            accessToken={accessToken}
+            refreshPlaylists={refreshPlaylists}
+          />
         </div>
         <div className="flex flex-col md:flex-row gap-8 flex-1 mb-8">
           <SpotifyPlaylists

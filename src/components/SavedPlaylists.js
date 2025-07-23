@@ -2,22 +2,24 @@ export default function savedPlaylists({
   savedPlaylists,
   profile,
   accessToken,
+  refreshPlaylists,
 }) {
   const handleUploadPlaylist = async (name, songs) => {
-    const requestData = {
-      accessToken: accessToken,
-      name: name,
-      description: "Created with my Jamming app",
-      public: true,
-      tracks: songs,
-    };
 
-    console.log("Uploading playlist with request:", {
-      url: "/api/uploadPlaylist",
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: requestData,
-    });
+    // const requestData = {
+    //   accessToken: accessToken,
+    //   name: name,
+    //   description: "Created with my Jamming app",
+    //   public: true,
+    //   tracks: songs,
+    // };
+
+    // console.log("Uploading playlist with request:", {
+    //   url: "/api/uploadPlaylist",
+    //   method: "POST",
+    //   headers: { "Content-Type": "application/json" },
+    //   body: requestData,
+    // });
 
     const response = await fetch("/api/uploadPlaylist", {
       method: "POST",
@@ -33,14 +35,15 @@ export default function savedPlaylists({
       }),
     });
 
-    console.log("Response:", response);
+    // console.log("Response:", response);
 
     const data = await response.json();
 
     if (response.ok) {
-      console.log("Playlist uploaded:", data.playlist);
+    //   console.log("Playlist uploaded:", data.playlist);
+        refreshPlaylists(); // Trigger a refresh of playlists
     } else {
-      console.error("Upload failed:", data.error);
+    //   console.error("Upload failed:", data.error);
     }
   };
 
