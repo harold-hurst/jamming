@@ -78,13 +78,7 @@ export default async function handler(req, res) {
       //     typeof track === "string" ? track : track.uri
       //   );
 
-      const uris = tracks.map((track) =>
-        typeof track === "string"
-          ? track.startsWith("spotify:track:")
-            ? track
-            : `spotify:track:${track}`
-          : `spotify:track:${track.uri}`
-      );
+      const uris = tracks.map((track) => `spotify:track:${track.id}`);
 
       console.log("Playlist ID:", playlistData.id);
 
