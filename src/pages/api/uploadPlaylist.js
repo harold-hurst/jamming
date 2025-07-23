@@ -28,6 +28,9 @@ export default async function handler(req, res) {
     const userData = await userRes.json();
     const userId = userData.id;
 
+
+
+
     // 2. Create a new playlist for the user
     const createRes = await fetch(`https://api.spotify.com/v1/users/${userId}/playlists`, {
       method: "POST",
@@ -41,6 +44,17 @@ export default async function handler(req, res) {
         public: isPublic,
       }),
     });
+
+
+    // TESTING ========================
+
+    // Log status and raw response body
+    const createResText = await createRes.text();
+    console.log("createRes:", createRes);
+    console.log("createRes status:", createRes.status);
+    console.log("createRes body:", createResText);
+
+    // TESTING ========================
 
     const playlistData = await createRes.json();
 

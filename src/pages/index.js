@@ -57,7 +57,6 @@ export default function Home() {
     const params = new URLSearchParams(window.location.search); // Get URL parameters
     const authCodeFromUrl = params.get("code");
 
-    console.log("authCode from URL:", authCodeFromUrl);
     if (authCodeFromUrl) {
       setAuthCode(authCodeFromUrl);
     }
@@ -87,9 +86,6 @@ export default function Home() {
           fetchProfile(accessToken),
           fetchPlaylists(accessToken),
         ]);
-
-        console.log("Profile Data:", profileData);
-        console.log("Playlists Data:", playlistsData);
 
         setProfile(profileData);
         setSpotifyPlaylists(playlistsData.items);
