@@ -106,8 +106,16 @@ export default function Home() {
   useEffect(() => {
     if (!accessToken) return;
 
-    playlistsData = fetchPlaylists(accessToken);
-    setSpotifyPlaylists(playlistsData.items);
+    const fetchSpotifyPlaylists = async () => {
+      try {
+        const playlistsData = await fetchPlaylists(accessToken);
+        setSpotifyPlaylists(playlistsData.items);
+      } catch (error) {
+        console.error("Spotify API error:", error);
+      }
+    };
+
+    fetchSpotifyPlaylists();
 
     // const loadPlaylists = async () => {
     //   const data = await fetchPlaylists(accessToken);
