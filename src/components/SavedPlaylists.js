@@ -2,9 +2,10 @@ import { useState } from "react";
 
 export default function SavedPlaylists({
   savedPlaylists,
+  removeFromSavedPlaylists,
   profile,
   accessToken,
-  refreshPlaylists,
+  refreshSpotifyPlaylists
 }) {
   const [uploadedIdx, setUploadedIdx] = useState(null);
 
@@ -28,9 +29,11 @@ export default function SavedPlaylists({
     const data = await response.json();
 
     if (response.ok) {
+      // change the icon to a tick mark
       setUploadedIdx(idx); // Set the uploaded index to change the icon
       setTimeout(() => {
-        refreshPlaylists(); // Trigger a refresh of playlists after a short delay
+        removeFromSavedPlaylists(idx); // Remove the playlist from saved playlists
+        refreshSpotifyPlaylists(); // Trigger a refresh of playlists after a short delay
       }, 2000);
     } else {
       //   console.error("Upload failed:", data.error);

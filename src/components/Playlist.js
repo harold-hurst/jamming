@@ -8,10 +8,12 @@ export default function Playlist({
   resetPlaylist,
   profile,
   accessToken,
-  refreshPlaylists,
+  refreshSpotifyPlaylists,
 }) {
   // store for holding the playlist name
   const [playlistName, setPlaylistName] = useState("");
+
+  // store for holding saved playlists
   const [savedPlaylists, setSavedPlaylists] = useState([]);
 
   const handleSavePlaylist = () => {
@@ -22,6 +24,10 @@ export default function Playlist({
     ]);
     resetPlaylist();
     setPlaylistName("");
+  };
+
+  const removeFromSavedPlaylists = (idx) => {
+    setSavedPlaylists((prev) => prev.filter((_, i) => i !== idx));
   };
 
   return (
@@ -67,7 +73,13 @@ export default function Playlist({
       </div>
       {/* Saved Playlists */}
       {savedPlaylists.length > 0 && (
-        <SavedPlaylists savedPlaylists={savedPlaylists} profile={profile} accessToken={accessToken} refreshPlaylists={refreshPlaylists}/>
+        <SavedPlaylists
+          savedPlaylists={savedPlaylists}
+          removeFromSavedPlaylists={removeFromSavedPlaylists}
+          profile={profile}
+          accessToken={accessToken}
+          refreshSpotifyPlaylists={refreshSpotifyPlaylists}
+        />
       )}
     </section>
   );

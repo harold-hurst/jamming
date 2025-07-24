@@ -117,13 +117,12 @@ export default function Home() {
     };
 
     fetchSpotifyPlaylists();
-
   }, [refreshTrigger]);
 
   // =============================================================
 
-    // Function to trigger refresh
-  const refreshPlaylists = () => {
+  // Function to trigger refresh
+  const refreshSpotifyPlaylists = () => {
     setRefreshTrigger((prev) => prev + 1);
   };
 
@@ -134,10 +133,6 @@ export default function Home() {
 
   // handle logout
   const handleLogout = async () => {};
-
-  const resetPlaylist = () => {
-    setPlaylist([]);
-  };
 
   // App functions
   // =====================================================================
@@ -150,6 +145,10 @@ export default function Home() {
 
   const removeFromPlaylist = (songId) => {
     setPlaylist(playlist.filter((s) => s.id !== songId));
+  };
+
+  const resetPlaylist = () => {
+    setPlaylist([]);
   };
 
   return (
@@ -183,7 +182,7 @@ export default function Home() {
             resetPlaylist={resetPlaylist}
             profile={profile}
             accessToken={accessToken}
-            refreshPlaylists={refreshPlaylists}
+            refreshSpotifyPlaylists={refreshSpotifyPlaylists}
           />
         </div>
         <div className="flex flex-col md:flex-row gap-8 flex-1 mb-8">
