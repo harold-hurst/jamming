@@ -31,7 +31,7 @@ export default function SavedPlaylists({
       setUploadedIdx(idx); // Set the uploaded index to change the icon
       setTimeout(() => {
         refreshPlaylists(); // Trigger a refresh of playlists after a short delay
-      }, 1000);
+      }, 2000);
     } else {
       //   console.error("Upload failed:", data.error);
     }
