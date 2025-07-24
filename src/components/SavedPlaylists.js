@@ -34,6 +34,7 @@ export default function SavedPlaylists({
       setTimeout(() => {
         removeFromSavedPlaylists(idx); // Remove the playlist from saved playlists
         refreshSpotifyPlaylists(); // Trigger a refresh of playlists after a short delay
+        setUploadedIdx(null); // Reset uploaded index after a delay
       }, 2000);
     } else {
       //   console.error("Upload failed:", data.error);
